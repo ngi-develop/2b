@@ -1,0 +1,458 @@
+/* ---------------------------------------------------------------
+   React Bits — 2B art-direction overrides.
+
+   Imported AFTER the vendored component stylesheets so the vendor
+   files stay byte-comparable with upstream. Everything here exists
+   to enforce the same rules as the rest of the site:
+     no border-radius, no box-shadow, no gradient, no emoji.
+----------------------------------------------------------------*/
+
+/* ===============================================================
+   ScrollExpand — the home hero
+   At rest the frame is a full-height column pinned to the right
+   edge; the headline holds the left. Scrolling opens it leftward
+   to full bleed.
+================================================================ */
+
+.hero-expand {
+  background: var(--ink);
+}
+
+.hero-expand .scroll-expand__stage {
+  /* the ground the headline sits on before the photo takes over */
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hero-expand .scroll-expand__frame {
+  /* static fallback matching anchorX=1 / startWidth=46 before JS runs */
+  clip-path: inset(0% 0% 0% 54% round 0px);
+}
+
+.hero-expand .scroll-expand__media {
+  filter: saturate(0.92) contrast(1.06);
+}
+
+/* flat scrim — the upstream rule is a gradient */
+.hero-expand .scroll-expand__scrim {
+  background: rgba(16, 16, 16, 0.62);
+}
+
+/* --- resting content block ----------------------------------- */
+
+.hero-expand .scroll-expand__title {
+  /* left column only, so it never sits over the photograph */
+  inset: 0 auto 0 0;
+  width: min(56%, 62rem);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  padding: 0;
+  font-size: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: inherit;
+  color: var(--paper);
+  text-shadow: none;
+}
+
+/* The copy rides on its own ink panel. At rest it is invisible — the stage
+   is the same ink — but as the photograph sweeps left underneath, the panel
+   becomes a hard-edged block that keeps the headline readable the whole way.
+   A flat block, not a scrim: gradients are out. */
+.hero-rest {
+  width: 100%;
+  background: var(--ink);
+  padding: clamp(30px, 4vw, 58px) clamp(28px, 4vw, 56px) clamp(30px, 4vw, 58px)
+    var(--gutter);
+}
+
+.hero-rest__kicker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: clamp(18px, 3vw, 32px);
+}
+.hero-rest__kicker::after {
+  content: '';
+  flex: 1 1 auto;
+  height: var(--hair);
+  background: var(--line-dark);
+}
+
+.hero-rest__title {
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: clamp(3rem, 9vw, 8rem);
+  letter-spacing: -0.03em;
+  line-height: 0.85;
+  margin: 0;
+  color: var(--paper);
+}
+.hero-rest__title em {
+  font-style: normal;
+  color: var(--clay);
+}
+.hero-rest__title .line {
+  display: block;
+}
+/* the second line steps in — reinforces the off-axis composition */
+.hero-rest__title .line--indent {
+  padding-left: clamp(0px, 6vw, 104px);
+}
+
+.hero-rest__lead {
+  margin-top: clamp(20px, 3vw, 34px);
+  max-width: 32rem;
+  color: rgba(239, 237, 231, 0.72);
+  font-size: clamp(1rem, 1.35vw, 1.25rem);
+  line-height: 1.45;
+}
+
+.hero-rest__actions {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: clamp(22px, 3vw, 36px);
+}
+.hero-rest__actions .btn {
+  margin-right: -1px;
+}
+
+/* --- full-bleed overlay content ------------------------------ */
+
+.hero-expand .scroll-expand__overlay {
+  align-items: flex-start;
+  justify-content: flex-end;
+  text-align: left;
+  padding: 0 var(--gutter) clamp(40px, 7vw, 96px);
+}
+
+.hero-over {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  color: var(--paper);
+}
+
+.hero-over__title {
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 4.4vw, 4rem);
+  letter-spacing: -0.03em;
+  line-height: 0.94;
+  max-width: 18ch;
+  margin-bottom: clamp(22px, 3vw, 38px);
+}
+
+.hero-over__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: var(--hair) solid rgba(239, 237, 231, 0.28);
+}
+.hero-over__stats > div {
+  padding: clamp(14px, 1.8vw, 22px) clamp(12px, 1.6vw, 24px);
+  border-left: var(--hair) solid rgba(239, 237, 231, 0.28);
+}
+.hero-over__stats > div:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+.hero-over__stats dt {
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: rgba(239, 237, 231, 0.6);
+  margin-bottom: 8px;
+}
+.hero-over__stats dd {
+  margin: 0;
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 2.4vw, 2.125rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+/* --- scroll hint --------------------------------------------- */
+
+.hero-expand .scroll-expand__hint {
+  left: var(--gutter);
+  right: auto;
+  bottom: clamp(24px, 4vw, 44px);
+  text-align: left;
+  font-family: var(--f-body);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: rgba(239, 237, 231, 0.55);
+}
+
+@media (max-width: 900px) {
+  /* On narrow screens the split reads as a stack: the photo becomes a
+     band across the top and the copy sits on ink beneath it. */
+  .hero-expand .scroll-expand__title {
+    inset: auto 0 0 0;
+    width: 100%;
+    justify-content: flex-end;
+    padding: 0;
+  }
+  .hero-rest {
+    padding: clamp(26px, 6vw, 40px) var(--gutter) clamp(34px, 8vw, 56px);
+  }
+  .hero-expand .scroll-expand__frame {
+    clip-path: inset(0% 0% 58% 0% round 0px);
+  }
+  .hero-rest__title .line--indent {
+    padding-left: 0;
+  }
+  /* stacked, the hint would sit on top of the second CTA — and the cue is
+     redundant on a touch screen anyway */
+  .hero-expand .scroll-expand__hint {
+    display: none;
+  }
+  .hero-over__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hero-over__stats > div:nth-child(3) {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .hero-over__stats > div:nth-child(n + 3) {
+    border-top: var(--hair) solid rgba(239, 237, 231, 0.28);
+  }
+}
+
+/* ===============================================================
+   StaggeredMenu — the site menu
+================================================================ */
+
+.staggered-menu-wrapper.fixed-wrapper {
+  z-index: 100;
+}
+
+/* --- the fixed bar -------------------------------------------- */
+
+.staggered-menu-header {
+  padding: 0;
+  height: var(--hdr-h);
+  background: var(--ink);
+  border-bottom: var(--hair) solid var(--line-dark);
+  color: var(--paper);
+  align-items: stretch;
+}
+
+/* the bar's own inner gutter, matching .shell */
+.staggered-menu-header .sm-logo {
+  padding-left: var(--gutter);
+}
+
+.sm-header-actions {
+  display: flex;
+  align-items: stretch;
+  flex: 0 0 auto;
+}
+
+.sm-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--paper);
+}
+.sm-brand .brandmark__sub {
+  color: rgba(239, 237, 231, 0.55);
+  border-left-color: var(--line-dark);
+}
+
+.sm-dash {
+  display: flex;
+  align-items: center;
+  padding-inline: clamp(14px, 1.6vw, 22px);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-left: var(--hair) solid var(--line-dark);
+  white-space: nowrap;
+  color: var(--paper);
+  transition: background 0.22s var(--ease), color 0.22s var(--ease);
+}
+.sm-dash:hover {
+  background: var(--ink-2);
+  color: var(--clay);
+}
+
+.sm-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--clay);
+  color: var(--paper);
+  padding-inline: clamp(16px, 2.2vw, 32px);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.22s var(--ease);
+}
+.sm-cta:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* --- the toggle ----------------------------------------------- */
+
+.sm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding-inline: clamp(16px, 2vw, 26px);
+  border-left: var(--hair) solid var(--line-dark);
+  font-family: var(--f-body);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  transition: background 0.22s var(--ease);
+}
+.sm-toggle:hover {
+  background: var(--ink-2);
+}
+.sm-toggle:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: -3px;
+  border-radius: 0;
+}
+
+.sm-icon-line {
+  height: 1.5px;
+  border-radius: 0;
+}
+
+/* --- the panel ------------------------------------------------ */
+
+.staggered-menu-panel {
+  width: clamp(300px, 42vw, 560px);
+  background: var(--paper);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: calc(var(--hdr-h) + clamp(28px, 5vw, 64px)) clamp(24px, 4vw, 64px)
+    clamp(28px, 4vw, 56px);
+  border-left: var(--hair) solid var(--line);
+}
+
+.sm-prelayers {
+  width: clamp(300px, 42vw, 560px);
+}
+
+.sm-panel-inner {
+  gap: 0;
+}
+
+.sm-panel-list {
+  gap: 0;
+  border-top: var(--hair) solid var(--line-soft);
+}
+
+.sm-panel-itemWrap {
+  border-bottom: var(--hair) solid var(--line-soft);
+}
+
+.sm-panel-item {
+  display: block;
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: clamp(1.75rem, 3.4vw, 2.875rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: none;
+  color: var(--ink);
+  padding: clamp(14px, 1.8vw, 20px) 3.5em clamp(14px, 1.8vw, 20px) 0;
+  transition: color 0.25s var(--ease), padding-left 0.3s var(--ease);
+}
+.sm-panel-item:hover {
+  color: var(--clay);
+  padding-left: 14px;
+}
+
+.sm-panel-list[data-numbering] .sm-panel-item::after {
+  top: auto;
+  bottom: clamp(16px, 1.9vw, 24px);
+  right: 0;
+  font-family: var(--f-body);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--clay);
+}
+
+/* --- panel footer -------------------------------------------- */
+
+.sm-socials {
+  padding-top: clamp(26px, 4vw, 44px);
+  gap: 14px;
+}
+
+.sm-socials-title {
+  font-family: var(--f-body);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--ink-45);
+}
+
+.sm-socials-list {
+  gap: 0;
+  flex-direction: column;
+  align-items: stretch;
+  border-top: var(--hair) solid var(--line-soft);
+}
+
+.sm-socials-item {
+  border-bottom: var(--hair) solid var(--line-soft);
+}
+
+.sm-socials-link {
+  display: block;
+  padding: 12px 0;
+  font-family: var(--f-body);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ink-70);
+}
+.sm-socials-link:hover {
+  color: var(--clay);
+}
+.sm-socials-link:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1024px) {
+  .staggered-menu-panel,
+  .sm-prelayers {
+    width: 100%;
+  }
+  .staggered-menu-wrapper[data-open] .sm-logo-img {
+    filter: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .sm-dash {
+    display: none;
+  }
+  .sm-cta .sm-cta-long {
+    display: none;
+  }
+  .sm-toggle .sm-toggle-textWrap {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .sm-brand .brandmark__sub {
+    display: none;
+  }
+}

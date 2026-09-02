@@ -1,0 +1,8 @@
+dev_key
+dev_key.pub
+.env
+.log
+/node_modules
+/dist
+/client/dist
+/client/node_modules

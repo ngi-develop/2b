@@ -1,0 +1,276 @@
+/* ---------------------------------------------------------------
+   Reset + typographic base
+----------------------------------------------------------------*/
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* the hero image bleeds past the right edge — clip, never scroll */
+  overflow-x: clip;
+}
+
+img,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--f-head);
+  font-weight: 700;
+  letter-spacing: var(--ls-tight);
+  line-height: 0.98;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  border-radius: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+:focus-visible {
+  outline: 2px solid var(--clay);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--clay);
+  color: var(--paper);
+}
+
+/* --- headline scale ----------------------------------------- */
+
+.display {
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: var(--t-display);
+  letter-spacing: -0.03em;
+  line-height: 0.87;
+}
+
+.h1 {
+  font-size: var(--t-h1);
+  line-height: 0.92;
+}
+.h2 {
+  font-size: var(--t-h2);
+  line-height: 0.95;
+}
+.h3 {
+  font-size: var(--t-h3);
+  line-height: 1.06;
+}
+.h4 {
+  font-size: var(--t-h4);
+  line-height: 1.15;
+}
+
+.lead {
+  font-size: clamp(1.0625rem, 1.45vw, 1.375rem);
+  line-height: 1.45;
+  color: var(--ink-70);
+  max-width: 46ch;
+}
+
+.body-muted {
+  color: var(--ink-70);
+  max-width: 62ch;
+}
+
+/* small caps label — used everywhere as the section marker */
+.eyebrow {
+  font-family: var(--f-body);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--ink-45);
+  display: block;
+}
+
+.eyebrow--clay {
+  color: var(--clay);
+}
+.eyebrow--paper {
+  color: rgba(239, 237, 231, 0.55);
+}
+
+/* the running number that marks each section — editorial device */
+.index-mark {
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: var(--t-micro);
+  letter-spacing: 0.06em;
+  color: var(--clay);
+}
+
+.mono-note {
+  font-size: var(--t-small);
+  color: var(--ink-45);
+  line-height: 1.5;
+}
+
+/* --- utilities ----------------------------------------------- */
+
+/* the header bar is fixed, so the flow has to reserve its height */
+.page-main {
+  padding-top: var(--hdr-h);
+}
+/* ...except where a full-viewport ink section runs beneath the (ink) bar */
+.page-main--flush {
+  padding-top: 0;
+}
+
+.shell {
+  width: 100%;
+  max-width: var(--shell);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.rule {
+  height: var(--hair);
+  background: var(--line);
+  border: 0;
+  margin: 0;
+}
+.rule--soft {
+  background: var(--line-soft);
+}
+.rule--dark {
+  background: var(--line-dark);
+}
+
+.sec {
+  padding-block: var(--s-3);
+}
+.sec--1 {
+  padding-block: var(--s-1);
+}
+.sec--2 {
+  padding-block: var(--s-2);
+}
+.sec--4 {
+  padding-block: var(--s-4);
+}
+.sec--5 {
+  padding-block: var(--s-5);
+}
+
+/* asymmetric top/bottom — spacing should vary, not repeat */
+.sec--lopsided {
+  padding-top: var(--s-4);
+  padding-bottom: var(--s-2);
+}
+.sec--lopsided-alt {
+  padding-top: var(--s-2);
+  padding-bottom: var(--s-5);
+}
+
+.ink-block {
+  background: var(--ink);
+  color: var(--paper);
+}
+.ink-block .lead,
+.ink-block .body-muted {
+  color: rgba(239, 237, 231, 0.7);
+}
+.ink-block .eyebrow {
+  color: rgba(239, 237, 231, 0.5);
+}
+.ink-block .mono-note {
+  color: rgba(239, 237, 231, 0.55);
+}
+
+.clay-block {
+  background: var(--clay);
+  color: var(--paper);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0;
+  top: -100px;
+  z-index: 200;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 20px;
+  font-size: var(--t-small);
+}
+.skip-link:focus {
+  top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,365 @@
+/* ---------------------------------------------------------------
+   Structural layout: header, hero, editorial bands, footer
+----------------------------------------------------------------*/
+
+/* =============== BRANDMARK ===================================
+   The wordmark itself. The bar that holds it is StaggeredMenu's
+   header — see styles/reactbits-overrides.css.
+=============================================================== */
+
+.brandmark {
+  font-family: var(--f-head);
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.brandmark__b {
+  color: var(--clay);
+}
+
+.brandmark__sub {
+  font-family: var(--f-body);
+  font-size: var(--t-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-45);
+  border-left: var(--hair) solid var(--line-soft);
+  padding-left: 10px;
+  margin-left: 2px;
+}
+
+/* =============== PAGE HEADER (interior pages) ================= */
+
+.pagehead {
+  background: var(--ink);
+  color: var(--paper);
+  border-bottom: var(--hair) solid var(--line);
+  position: relative;
+  overflow: clip;
+}
+
+.pagehead__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.62fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: end;
+  padding-top: clamp(52px, 8vw, 104px);
+  padding-bottom: clamp(36px, 5vw, 64px);
+}
+
+.pagehead__title {
+  font-size: var(--t-h1);
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  max-width: 18ch;
+}
+
+.pagehead__aside {
+  padding-bottom: 8px;
+}
+.pagehead__aside p {
+  color: rgba(239, 237, 231, 0.82);
+  max-width: 40ch;
+}
+
+/* Sits behind the masthead as texture. Kept narrow, far right and faint so
+   the intro paragraph in the right-hand column stays readable over it. */
+.pagehead__media {
+  position: absolute;
+  right: calc((var(--gutter) + 9vw) * -1);
+  top: 0;
+  bottom: 0;
+  width: 27vw;
+  opacity: 0.2;
+}
+.pagehead__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--t-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(239, 237, 231, 0.5);
+  padding-top: clamp(18px, 2.6vw, 28px);
+}
+.crumbs a:hover {
+  color: var(--clay);
+}
+.crumbs span[aria-hidden] {
+  color: var(--clay);
+}
+
+@media (max-width: 900px) {
+  .pagehead__inner {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 24px;
+  }
+  .pagehead__media {
+    display: none;
+  }
+}
+
+/* =============== MARQUEE ===================================== */
+
+.marquee {
+  border-block: var(--hair) solid var(--line);
+  background: var(--paper);
+  overflow: hidden;
+  padding-block: 16px;
+}
+.ink-block .marquee,
+.marquee--ink {
+  background: var(--ink);
+  border-color: var(--line-dark);
+  color: var(--paper);
+}
+
+.marquee__track {
+  display: flex;
+  width: max-content;
+  animation: marquee 46s linear infinite;
+}
+.marquee:hover .marquee__track {
+  animation-play-state: paused;
+}
+
+.marquee__item {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 3vw, 44px);
+  padding-right: clamp(24px, 3vw, 44px);
+  font-family: var(--f-head);
+  font-weight: 700;
+  font-size: clamp(1rem, 1.5vw, 1.375rem);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.marquee__dot {
+  width: 6px;
+  height: 6px;
+  background: var(--clay);
+  flex: 0 0 auto;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* =============== EDITORIAL SPLIT ============================= */
+/* Text left of centre, image running off the right edge. */
+
+.split {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: clamp(28px, 5vw, 86px);
+  align-items: center;
+}
+
+.split--textRight {
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+}
+
+.split__body {
+  max-width: 38rem;
+}
+
+.split__media {
+  position: relative;
+  aspect-ratio: 4 / 3.1;
+  overflow: hidden;
+}
+.split__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.1s var(--ease);
+}
+.split__media:hover img {
+  transform: scale(1.035);
+}
+
+/* pushes the image past the right viewport edge */
+.split__media--bleedRight {
+  margin-right: calc((var(--gutter) + 6vw) * -1);
+}
+.split__media--bleedLeft {
+  margin-left: calc((var(--gutter) + 6vw) * -1);
+}
+
+.split__caption {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 12px 18px;
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  max-width: 70%;
+}
+
+/* A left-bleeding figure starts off-screen, so a caption pinned to its left
+   edge is unreadable. Flip it to the figure's right edge, which is on-screen. */
+.split__media--bleedLeft .split__caption {
+  left: auto;
+  right: 0;
+}
+
+@media (max-width: 900px) {
+  .split,
+  .split--textRight {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .split__media--bleedRight,
+  .split__media--bleedLeft {
+    margin-inline: calc(var(--gutter) * -1);
+  }
+  .split--textRight .split__body {
+    order: -1;
+  }
+}
+
+/* =============== SECTION HEAD ================================ */
+
+.sechead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(20px, 4vw, 48px);
+  padding-bottom: clamp(28px, 4vw, 52px);
+}
+
+.sechead__lead {
+  max-width: 30ch;
+}
+
+.sechead__meta {
+  max-width: 34ch;
+  padding-bottom: 6px;
+}
+
+@media (max-width: 760px) {
+  .sechead {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
+/* =============== FOOTER ====================================== */
+
+.ftr {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.ftr__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) repeat(3, minmax(0, 0.6fr));
+  gap: clamp(28px, 4vw, 56px);
+  padding-block: clamp(56px, 7vw, 104px);
+}
+
+.ftr__wordmark {
+  font-family: var(--f-head);
+  font-weight: 800;
+  font-size: clamp(2.75rem, 6vw, 4.75rem);
+  letter-spacing: -0.045em;
+  line-height: 0.86;
+  margin-bottom: 22px;
+}
+.ftr__wordmark em {
+  font-style: normal;
+  color: var(--clay);
+}
+
+.ftr__col h4 {
+  font-family: var(--f-body);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: rgba(239, 237, 231, 0.45);
+  margin-bottom: 18px;
+}
+
+.ftr__col li + li {
+  margin-top: 11px;
+}
+
+.ftr__col a,
+.ftr__col span {
+  font-size: 0.9375rem;
+  color: rgba(239, 237, 231, 0.82);
+  transition: color 0.2s var(--ease);
+}
+.ftr__col a:hover {
+  color: var(--clay);
+}
+
+.ftr__news {
+  border-top: var(--hair) solid var(--line-dark);
+  border-bottom: var(--hair) solid var(--line-dark);
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(20px, 4vw, 64px);
+  align-items: center;
+  padding-block: clamp(30px, 4vw, 46px);
+}
+
+.ftr__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 14px;
+  padding-block: 26px;
+  font-size: var(--t-small);
+  color: rgba(239, 237, 231, 0.5);
+}
+.ftr__bottom a:hover {
+  color: var(--clay);
+}
+
+.ftr__legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+}
+
+@media (max-width: 1000px) {
+  .ftr__top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .ftr__brandCol {
+    grid-column: 1 / -1;
+  }
+  .ftr__news {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 560px) {
+  .ftr__top {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+}

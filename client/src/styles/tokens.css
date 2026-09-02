@@ -1,0 +1,65 @@
+/* ---------------------------------------------------------------
+   2B Location — design tokens
+   Art direction: editorial / brutalist-adjacent.
+   Hard rules enforced across the whole system:
+     no border-radius, no box-shadow, no gradient, no emoji.
+   Depth is built from rules (1px lines), flat colour blocks and
+   scale contrast instead.
+----------------------------------------------------------------*/
+
+:root {
+  /* --- ink & paper ------------------------------------------- */
+  --ink: #101010;
+  --ink-2: #1c1c1a;
+  --ink-70: #4a4740;
+  --ink-45: #78736a;
+  --paper: #efede7;
+  --paper-2: #e4e1d8;
+  --paper-3: #d8d4c8;
+  --white: #ffffff;
+
+  /* Single accent. Marrakech clay — carries the Morocco cue
+     without resorting to a decorative pattern. */
+  --clay: #c4441f;
+  --clay-deep: #973012;
+
+  /* --- rules -------------------------------------------------- */
+  --line: #101010;
+  --line-soft: #c6c1b4;
+  --line-dark: #2f2d29;
+  --hair: 1px;
+
+  /* --- shell / grid ------------------------------------------- */
+  --hdr-h: 74px;
+  --shell: 1560px;
+  --gutter: clamp(20px, 5vw, 88px);
+  /* the editorial measure: content sits left of centre */
+  --measure: min(46rem, 52vw);
+
+  /* --- section rhythm ----------------------------------------
+     Deliberately irregular. Sections pick different steps so the
+     page never falls into a repeating beat. */
+  --s-1: clamp(40px, 5vw, 64px);
+  --s-2: clamp(56px, 7vw, 96px);
+  --s-3: clamp(80px, 10vw, 148px);
+  --s-4: clamp(104px, 13vw, 196px);
+  --s-5: clamp(128px, 17vw, 248px);
+
+  /* --- type --------------------------------------------------- */
+  --f-head: 'Bricolage Grotesque', 'Arial Black', 'Helvetica Neue', sans-serif;
+  --f-body: 'Switzer', 'Helvetica Neue', Arial, sans-serif;
+
+  --t-display: clamp(3rem, 9vw, 8rem);
+  --t-h1: clamp(2.5rem, 6.4vw, 5.5rem);
+  --t-h2: clamp(1.9rem, 3.6vw, 3.25rem);
+  --t-h3: clamp(1.25rem, 1.9vw, 1.75rem);
+  --t-h4: clamp(1.05rem, 1.3vw, 1.25rem);
+  --t-body: clamp(0.975rem, 1.05vw, 1.0625rem);
+  --t-small: 0.875rem;
+  --t-micro: 0.6875rem;
+
+  --ls-tight: -0.03em;
+  --ls-label: 0.16em;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
