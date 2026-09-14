@@ -8,25 +8,45 @@
 ----------------------------------------------------------------*/
 
 :root {
-  /* --- ink & paper ------------------------------------------- */
-  --ink: #101010;
-  --ink-2: #1c1c1a;
-  --ink-70: #4a4740;
-  --ink-45: #78736a;
-  --paper: #efede7;
-  --paper-2: #e4e1d8;
-  --paper-3: #d8d4c8;
+  /* --- ink & paper -------------------------------------------
+     Cool near-white over a blue-cast near-black, sampled from the
+     reference layout (#fcfcfc / #f0f0f0 / #1c1c20). */
+  --ink: #16161c;
+  --ink-2: #21222b;
+  --ink-70: #4a4d57;
+  --ink-45: #7c808c;
+  --paper: #fcfcfd;
+  --paper-2: #f1f2f5;
+  --paper-3: #e4e6eb;
   --white: #ffffff;
 
-  /* Single accent. Marrakech clay — carries the Morocco cue
-     without resorting to a decorative pattern. */
-  --clay: #c4441f;
-  --clay-deep: #973012;
+  /* --- accent --------------------------------------------------
+     The reference fills its buttons with #74a2ff. Paper text on that
+     lands at 2.45:1, so the scale splits by ground:
+       --accent        4.53:1 on paper — fills and text on light
+       --accent-bright 7.17:1 on ink   — text and marks on dark
+     Measured, not estimated; see the contrast note in the README. */
+  --accent: #376bf0;
+  --accent-bright: #74a2ff;
+  /* Text and marks read `--accent-on`, which dark grounds re-point at the
+     bright blue (see base.css). Fills keep `--accent` so the paper text on
+     them stays legible. */
+  --accent-on: var(--accent);
+  --accent-deep: #2450c8;
+  --accent-tint: #dce7ff;
+
+  /* Danger is its own colour now. Previously the brand accent doubled
+     as the alert colour, which made "blacklisté" and "réserver" the
+     same red — semantically muddy. */
+  --danger: #d43e33;
+  --danger-deep: #b3352b;
+  --warn: #b07d18;
+  --ok: #1e7a4d;
 
   /* --- rules -------------------------------------------------- */
-  --line: #101010;
-  --line-soft: #c6c1b4;
-  --line-dark: #2f2d29;
+  --line: #16161c;
+  --line-soft: #dcdee4;
+  --line-dark: #2e2f38;
   --hair: 1px;
 
   /* --- shell / grid ------------------------------------------- */

@@ -92,7 +92,7 @@ export default function Footer() {
             </p>
           </div>
           {done ? (
-            <p className="mono-note" style={{ color: 'var(--clay)' }}>
+            <p className="mono-note" style={{ color: 'var(--accent-on)' }}>
               Inscription enregistrée. À très vite.
             </p>
           ) : (
@@ -117,7 +117,7 @@ export default function Footer() {
                   minWidth: 0,
                 }}
               />
-              <button type="submit" className="btn btn--clay">
+              <button type="submit" className="btn btn--accent">
                 S’inscrire <Arrow />
               </button>
             </form>

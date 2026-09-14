@@ -47,7 +47,7 @@ export default function Reservations() {
   return (
     <>
       <PageBar title="Réservations" crumb={loading ? '' : `${rows.length} dossier${rows.length > 1 ? 's' : ''}`}>
-        <Link to="/dashboard/reservations/nouvelle" className="dbtn dbtn--clay dbtn--sm">
+        <Link to="/dashboard/reservations/nouvelle" className="dbtn dbtn--accent dbtn--sm">
           + Nouvelle réservation
         </Link>
       </PageBar>
@@ -126,7 +126,7 @@ export default function Reservations() {
                         <td
                           className="num"
                           style={{
-                            color: r.totals?.balance > 0 ? 'var(--clay)' : 'var(--ink-45)',
+                            color: r.totals?.balance > 0 ? 'var(--accent)' : 'var(--ink-45)',
                             fontWeight: r.totals?.balance > 0 ? 600 : 400,
                           }}
                         >

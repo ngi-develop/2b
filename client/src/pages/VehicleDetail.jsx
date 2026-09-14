@@ -95,7 +95,7 @@ export default function VehicleDetail() {
           </nav>
           <div className="pagehead__inner">
             <div>
-              <span className="eyebrow" style={{ color: 'var(--clay)', marginBottom: 20 }}>
+              <span className="eyebrow" style={{ color: 'var(--accent-on)', marginBottom: 20 }}>
                 {vehicle.category} — {vehicle.year}
               </span>
               <h1 className="pagehead__title">
@@ -230,7 +230,7 @@ export default function VehicleDetail() {
                       Disponible du {formatDate(start)} au {formatDate(end)}
                     </p>
 
-                    <button type="button" className="btn btn--clay btn--wide" onClick={goToReservation}>
+                    <button type="button" className="btn btn--accent btn--wide" onClick={goToReservation}>
                       Poursuivre la demande <Arrow />
                     </button>
                   </>

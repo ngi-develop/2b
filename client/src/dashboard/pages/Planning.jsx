@@ -111,7 +111,7 @@ export default function Planning() {
               <option value="loue">Loué</option>
               <option value="maintenance">Maintenance</option>
             </select>
-            <Link to="/dashboard/reservations/nouvelle" className="dbtn dbtn--clay dbtn--sm spacer">
+            <Link to="/dashboard/reservations/nouvelle" className="dbtn dbtn--accent dbtn--sm spacer">
               + Nouvelle réservation
             </Link>
           </div>
@@ -195,13 +195,13 @@ export default function Planning() {
                   <i style={{ background: 'var(--ink)' }} /> Réservé
                 </span>
                 <span>
-                  <i style={{ background: 'var(--clay)' }} /> Loué / en cours
+                  <i style={{ background: 'var(--accent)' }} /> Loué / en cours
                 </span>
                 <span>
                   <i style={{ background: 'var(--ink-45)' }} /> Demande à confirmer
                 </span>
                 <span>
-                  <i style={{ background: '#5c3a06' }} /> Maintenance
+                  <i style={{ background: '#4d3a0c' }} /> Maintenance
                 </span>
               </div>
             </>

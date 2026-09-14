@@ -16,7 +16,7 @@
 }
 
 .brandmark__b {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 .brandmark__sub {
@@ -61,7 +61,7 @@
   padding-bottom: 8px;
 }
 .pagehead__aside p {
-  color: rgba(239, 237, 231, 0.82);
+  color: rgba(252, 252, 253, 0.82);
   max-width: 40ch;
 }
 
@@ -90,14 +90,14 @@
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
   font-weight: 600;
-  color: rgba(239, 237, 231, 0.5);
+  color: rgba(252, 252, 253, 0.5);
   padding-top: clamp(18px, 2.6vw, 28px);
 }
 .crumbs a:hover {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 .crumbs span[aria-hidden] {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 @media (max-width: 900px) {
@@ -149,7 +149,7 @@
 .marquee__dot {
   width: 6px;
   height: 6px;
-  background: var(--clay);
+  background: var(--accent);
   flex: 0 0 auto;
 }
 
@@ -290,7 +290,7 @@
 }
 .ftr__wordmark em {
   font-style: normal;
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 .ftr__col h4 {
@@ -299,7 +299,7 @@
   font-weight: 600;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
-  color: rgba(239, 237, 231, 0.45);
+  color: rgba(252, 252, 253, 0.45);
   margin-bottom: 18px;
 }
 
@@ -310,11 +310,11 @@
 .ftr__col a,
 .ftr__col span {
   font-size: 0.9375rem;
-  color: rgba(239, 237, 231, 0.82);
+  color: rgba(252, 252, 253, 0.82);
   transition: color 0.2s var(--ease);
 }
 .ftr__col a:hover {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 .ftr__news {
@@ -334,10 +334,10 @@
   gap: 14px;
   padding-block: 26px;
   font-size: var(--t-small);
-  color: rgba(239, 237, 231, 0.5);
+  color: rgba(252, 252, 253, 0.5);
 }
 .ftr__bottom a:hover {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 .ftr__legal {

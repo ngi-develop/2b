@@ -270,7 +270,7 @@ export default function ReservationNew() {
               <div style={{ display: 'grid', gap: 8, marginTop: 18 }}>
                 <button
                   type="button"
-                  className="dbtn dbtn--clay"
+                  className="dbtn dbtn--accent"
                   disabled={busy || blocked}
                   onClick={() => submit(true)}
                 >

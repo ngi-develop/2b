@@ -48,11 +48,11 @@ export default function Header() {
       displayItemNumbering
       socialsTitle="Accès direct"
       toggleLabels={['Menu', 'Fermer']}
-      /* flat clay-to-ink prelayers; the panel itself lands on paper */
-      colors={['#c4441f', '#1c1c1a']}
-      accentColor="#c4441f"
-      menuButtonColor="#efede7"
-      openMenuButtonColor="#c4441f"
+      /* flat accent-to-ink prelayers; the panel itself lands on paper */
+      colors={['#376bf0', '#1c1c1a']}
+      accentColor="#376bf0"
+      menuButtonColor="#fcfcfd"
+      openMenuButtonColor="#376bf0"
       changeMenuColorOnOpen
       onMenuOpen={() => setOpen(true)}
       onMenuClose={() => setOpen(false)}

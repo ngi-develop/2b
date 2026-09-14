@@ -30,7 +30,7 @@ export default function Clients() {
   return (
     <>
       <PageBar title="Clients" crumb={loading ? '' : `${rows.length} fiche${rows.length > 1 ? 's' : ''}`}>
-        <button type="button" className="dbtn dbtn--clay dbtn--sm" onClick={() => setCreating(true)}>
+        <button type="button" className="dbtn dbtn--accent dbtn--sm" onClick={() => setCreating(true)}>
           + Nouveau client
         </button>
       </PageBar>
@@ -95,7 +95,7 @@ export default function Clients() {
                       <td className="table__muted">{c.phone}</td>
                       <td className="num">{c.rentals}</td>
                       <td className="num">{money(c.revenue)}</td>
-                      <td className="num" style={{ color: c.outstanding > 0 ? 'var(--clay)' : 'var(--ink-45)' }}>
+                      <td className="num" style={{ color: c.outstanding > 0 ? 'var(--accent)' : 'var(--ink-45)' }}>
                         {c.outstanding > 0 ? money(c.outstanding) : '—'}
                       </td>
                       <td className="table__muted">{c.lastRental ? date(c.lastRental) : '—'}</td>
@@ -157,7 +157,7 @@ function NewClientDialog({ onClose, onCreated }) {
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
           <button
             type="button"
-            className="dbtn dbtn--clay"
+            className="dbtn dbtn--accent"
             onClick={submit}
             disabled={busy || !form.firstName || !form.lastName || !form.phone}
           >

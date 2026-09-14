@@ -265,6 +265,7 @@ export async function depositsToReturn() {
     .populate('client', 'firstName lastName phone')
     .populate('vehicle', 'brand model plate')
     .sort({ updatedAt: 1 })
+    .limit(20)
     .lean()
 }
 

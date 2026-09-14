@@ -465,12 +465,12 @@ export default function Pro() {
             <div className="form-foot">
               <p className="form-note">
                 Réponse sous 48 heures ouvrées. Pour un échange direct :{' '}
-                <a href={`tel:${company.phone.replace(/\s/g, '')}`} style={{ color: 'var(--clay)' }}>
+                <a href={`tel:${company.phone.replace(/\s/g, '')}`} style={{ color: 'var(--accent-on)' }}>
                   {company.phone}
                 </a>
                 .
               </p>
-              <button type="submit" className="btn btn--clay" disabled={sending}>
+              <button type="submit" className="btn btn--accent" disabled={sending}>
                 {sending ? 'Envoi en cours…' : 'Demander un devis'} <Arrow />
               </button>
             </div>

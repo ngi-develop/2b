@@ -189,7 +189,7 @@ export default function Contact() {
                       Vos données servent uniquement à traiter cette demande. Elles ne sont
                       ni revendues, ni utilisées à des fins publicitaires.
                     </p>
-                    <button type="submit" className="btn btn--clay" disabled={sending}>
+                    <button type="submit" className="btn btn--accent" disabled={sending}>
                       {sending ? 'Envoi…' : 'Envoyer le message'} <Arrow />
                     </button>
                   </div>

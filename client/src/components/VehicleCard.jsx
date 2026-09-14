@@ -53,7 +53,7 @@ export default function VehicleCard({ vehicle, start, end }) {
         </ul>
 
         {!available && (
-          <p className="mono-note" style={{ color: 'var(--clay)' }}>
+          <p className="mono-note" style={{ color: 'var(--accent-on)' }}>
             Indisponible pour ces dates
             {free ? ` — libre à partir du ${formatDate(free)}` : ''}
           </p>

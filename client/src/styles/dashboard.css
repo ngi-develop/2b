@@ -56,7 +56,7 @@
   font-weight: 600;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 .rail__nav {
@@ -69,7 +69,7 @@
   font-weight: 600;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
-  color: rgba(239, 237, 231, 0.35);
+  color: rgba(252, 252, 253, 0.35);
   padding: 18px 18px 8px;
 }
 
@@ -80,7 +80,7 @@
   padding: 10px 18px;
   font-size: 0.875rem;
   font-weight: 500;
-  color: rgba(239, 237, 231, 0.72);
+  color: rgba(252, 252, 253, 0.72);
   border-left: 2px solid transparent;
   transition: background 0.18s var(--ease), color 0.18s var(--ease),
     border-color 0.18s var(--ease);
@@ -92,7 +92,7 @@
 .rail__link.is-active {
   background: var(--ink-2);
   color: var(--paper);
-  border-left-color: var(--clay);
+  border-left-color: var(--accent-on);
 }
 .rail__link svg {
   flex: 0 0 auto;
@@ -102,7 +102,7 @@
   margin-left: auto;
   font-size: var(--t-micro);
   font-weight: 600;
-  background: var(--clay);
+  background: var(--accent);
   color: var(--paper);
   padding: 2px 6px;
   min-width: 20px;
@@ -125,7 +125,7 @@
   font-weight: 600;
 }
 .rail__user span {
-  color: rgba(239, 237, 231, 0.45);
+  color: rgba(252, 252, 253, 0.45);
   font-size: var(--t-micro);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -133,7 +133,7 @@
 .rail__signout {
   background: none;
   border: var(--hair) solid var(--line-dark);
-  color: rgba(239, 237, 231, 0.72);
+  color: rgba(252, 252, 253, 0.72);
   padding: 8px 10px;
   font-size: 0.8125rem;
   cursor: pointer;
@@ -141,8 +141,8 @@
   transition: all 0.18s var(--ease);
 }
 .rail__signout:hover {
-  border-color: var(--clay);
-  color: var(--clay);
+  border-color: var(--accent-on);
+  color: var(--accent-on);
 }
 
 /* --- main ---------------------------------------------------- */
@@ -182,7 +182,7 @@
   color: var(--ink-45);
 }
 .dash__breadcrumb a:hover {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 .dash__barRight {
@@ -230,7 +230,7 @@
   .dash__scrim {
     position: fixed;
     inset: 0;
-    background: rgba(16, 16, 16, 0.5);
+    background: rgba(22, 22, 28, 0.5);
     z-index: 50;
   }
 }
@@ -309,8 +309,8 @@
   background: var(--ink);
   color: var(--paper);
 }
-.tile--clay {
-  background: var(--clay);
+.tile--accent {
+  background: var(--accent);
   color: var(--paper);
 }
 
@@ -322,8 +322,8 @@
   color: var(--ink-45);
 }
 .tile--ink .tile__k,
-.tile--clay .tile__k {
-  color: rgba(239, 237, 231, 0.6);
+.tile--accent .tile__k {
+  color: rgba(252, 252, 253, 0.6);
 }
 
 .tile__v {
@@ -342,8 +342,8 @@
   margin-left: 4px;
 }
 .tile--ink .tile__v small,
-.tile--clay .tile__v small {
-  color: rgba(239, 237, 231, 0.6);
+.tile--accent .tile__v small {
+  color: rgba(252, 252, 253, 0.6);
 }
 
 .tile__note {
@@ -352,15 +352,15 @@
   line-height: 1.4;
 }
 .tile--ink .tile__note,
-.tile--clay .tile__note {
-  color: rgba(239, 237, 231, 0.66);
+.tile--accent .tile__note {
+  color: rgba(252, 252, 253, 0.66);
 }
 
 .tile__v--pos {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 .tile__v--neg {
-  color: #8a1d0c;
+  color: var(--danger-deep);
 }
 
 /* --- table --------------------------------------------------- */
@@ -468,13 +468,13 @@
 }
 
 /* status colours — flat fills, no gradients */
-.pill--ok { background: #13331f; border-color: #13331f; color: #cdebd6; }
+.pill--ok { background: #10301f; border-color: #10301f; color: #bfe8d1; }
 .pill--live { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-.pill--soon { background: #2b2a25; border-color: #2b2a25; color: #e6e2d4; }
-.pill--warn { background: #5c3a06; border-color: #5c3a06; color: #f7e2b8; }
-.pill--bad { background: var(--clay); border-color: var(--clay); color: var(--paper); }
+.pill--soon { background: #232631; border-color: #232631; color: #dfe3ec; }
+.pill--warn { background: #4d3a0c; border-color: #4d3a0c; color: #f5e2b5; }
+.pill--bad { background: var(--danger); border-color: var(--danger); color: var(--paper); }
 .pill--off { background: var(--paper-2); border-color: var(--line-soft); color: var(--ink-45); }
-.pill--vip { background: #2d2456; border-color: #2d2456; color: #ded7ff; }
+.pill--vip { background: #2a2a5c; border-color: #2a2a5c; color: #d9dcff; }
 
 /* --- filter chips / tabs ------------------------------------- */
 
@@ -504,7 +504,7 @@
 }
 .tab.is-on {
   color: var(--ink);
-  border-bottom-color: var(--clay);
+  border-bottom-color: var(--accent-on);
   font-weight: 600;
 }
 .tab__n {
@@ -515,7 +515,7 @@
   padding: 1px 5px;
 }
 .tab.is-on .tab__n {
-  background: var(--clay);
+  background: var(--accent);
   color: var(--paper);
 }
 
@@ -576,8 +576,8 @@
     border-color 0.18s var(--ease);
 }
 .dbtn:hover:not(:disabled) {
-  background: var(--clay);
-  border-color: var(--clay);
+  background: var(--accent);
+  border-color: var(--accent-on);
 }
 .dbtn:disabled {
   opacity: 0.4;
@@ -591,11 +591,11 @@
   background: var(--ink);
   color: var(--paper);
 }
-.dbtn--clay {
-  background: var(--clay);
-  border-color: var(--clay);
+.dbtn--accent {
+  background: var(--accent);
+  border-color: var(--accent-on);
 }
-.dbtn--clay:hover:not(:disabled) {
+.dbtn--accent:hover:not(:disabled) {
   background: var(--ink);
   border-color: var(--ink);
 }
@@ -604,8 +604,8 @@
   font-size: 0.75rem;
 }
 .dbtn--danger:hover:not(:disabled) {
-  background: #8a1d0c;
-  border-color: #8a1d0c;
+  background: var(--danger-deep);
+  border-color: var(--danger-deep);
   color: var(--paper);
 }
 
@@ -695,10 +695,10 @@
   background: var(--line-soft);
 }
 .alertrow--high .alertrow__bar {
-  background: var(--clay);
+  background: var(--accent);
 }
 .alertrow--medium .alertrow__bar {
-  background: #b58a2b;
+  background: var(--warn);
 }
 .alertrow__title {
   font-weight: 600;
@@ -709,7 +709,7 @@
   margin-top: 1px;
 }
 .alertrow a:hover {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 
 /* --- planning grid ------------------------------------------- */
@@ -805,8 +805,8 @@
   text-align: left;
 }
 .planning__span--confirmee { background: var(--ink); }
-.planning__span--en_cours { background: var(--clay); }
-.planning__span--maintenance { background: #5c3a06; }
+.planning__span--en_cours { background: var(--accent); }
+.planning__span--maintenance { background: #4d3a0c; }
 
 /* Demandes do not block the vehicle, so they get their own band underneath
    rather than colliding with the booking they might displace. Flat fill —
@@ -871,7 +871,7 @@
   min-height: 1px;
 }
 .chart__bar--rev { background: var(--ink); }
-.chart__bar--chg { background: var(--clay); }
+.chart__bar--chg { background: var(--accent); }
 .chart__label {
   font-size: 0.625rem;
   text-align: center;
@@ -904,8 +904,8 @@
   height: 100%;
   background: var(--ink);
 }
-.barlist__fill--clay {
-  background: var(--clay);
+.barlist__fill--accent {
+  background: var(--accent);
 }
 
 /* --- stage rail (réservation -> départ -> en cours -> retour) -- */
@@ -954,8 +954,8 @@
   background: var(--white);
 }
 .stage.is-current .stage__n {
-  background: var(--clay);
-  border-color: var(--clay);
+  background: var(--accent);
+  border-color: var(--accent-on);
   color: var(--paper);
 }
 
@@ -964,7 +964,7 @@
 .modal-scrim {
   position: fixed;
   inset: 0;
-  background: rgba(16, 16, 16, 0.62);
+  background: rgba(22, 22, 28, 0.62);
   z-index: 120;
   display: grid;
   place-items: center;
@@ -1077,12 +1077,12 @@
 }
 .dfield__err {
   font-size: 0.6875rem;
-  color: var(--clay);
+  color: var(--accent-on);
   font-weight: 500;
 }
 .dfield.has-error input,
 .dfield.has-error select {
-  border-color: var(--clay);
+  border-color: var(--accent-on);
 }
 
 @media (max-width: 640px) {
@@ -1102,16 +1102,16 @@
   margin-bottom: 14px;
 }
 .banner--error {
-  border-left-color: var(--clay);
-  background: rgba(196, 68, 31, 0.08);
-  color: #7d2410;
+  border-left-color: var(--accent-on);
+  background: rgba(212, 62, 51, 0.08);
+  color: var(--danger-deep);
 }
 .banner--warn {
-  border-left-color: #b58a2b;
-  background: rgba(181, 138, 43, 0.1);
+  border-left-color: var(--warn);
+  background: rgba(176, 125, 24, 0.1);
 }
 .banner--ok {
-  border-left-color: #1e6b3a;
+  border-left-color: var(--ok);
   background: rgba(30, 107, 58, 0.08);
 }
 

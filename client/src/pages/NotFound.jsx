@@ -13,7 +13,7 @@ export default function NotFound() {
         catalogue. Reprenons depuis la flotte.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        <Link to="/flotte" className="btn btn--clay">
+        <Link to="/flotte" className="btn btn--accent">
           Voir la flotte <Arrow />
         </Link>
         <Link to="/" className="btn btn--ghost" style={{ marginLeft: -1 }}>

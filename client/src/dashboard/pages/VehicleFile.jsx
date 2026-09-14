@@ -50,7 +50,7 @@ export default function VehicleFile() {
           <Tile
             label="Résultat depuis acquisition"
             value={money(v.profitability.result)}
-            variant={v.profitability.result >= 0 ? 'clay' : undefined}
+            variant={v.profitability.result >= 0 ? 'accent' : undefined}
             note={`${money(v.profitability.revenue)} de CA − ${money(v.profitability.charges)} de coûts`}
           />
         </div>
@@ -184,7 +184,7 @@ export default function VehicleFile() {
                 <Row k="Coûts" v={`− ${money(v.profitability.charges)}`} />
                 <div className="drow drow--total">
                   <span>Résultat</span>
-                  <span style={{ color: v.profitability.result >= 0 ? 'var(--ink)' : '#8a1d0c' }}>
+                  <span style={{ color: v.profitability.result >= 0 ? 'var(--ink)' : 'var(--danger-deep)' }}>
                     {v.profitability.result >= 0 ? '+' : ''}{money(v.profitability.result)}
                   </span>
                 </div>

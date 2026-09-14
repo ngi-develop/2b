@@ -45,7 +45,7 @@ export default function Finances() {
       <PageBar title="Finances" crumb={`${date(from)} → ${date(to)}`}>
         <input type="date" className="dinput dinput--sm" value={from} onChange={(e) => setFrom(e.target.value)} />
         <input type="date" className="dinput dinput--sm" value={to} onChange={(e) => setTo(e.target.value)} />
-        <button type="button" className="dbtn dbtn--clay dbtn--sm" onClick={() => setAdding(true)}>
+        <button type="button" className="dbtn dbtn--accent dbtn--sm" onClick={() => setAdding(true)}>
           + Ajouter une charge
         </button>
       </PageBar>
@@ -64,7 +64,7 @@ export default function Finances() {
               <Tile
                 label="Résultat de gestion"
                 value={money(data.result)}
-                variant={data.result >= 0 ? 'clay' : undefined}
+                variant={data.result >= 0 ? 'accent' : undefined}
               />
             </div>
 
@@ -137,7 +137,7 @@ function Overview({ data }) {
         </div>
         <div className="legend">
           <span><i style={{ background: 'var(--ink)' }} /> Chiffre d’affaires</span>
-          <span><i style={{ background: 'var(--clay)' }} /> Charges</span>
+          <span><i style={{ background: 'var(--accent)' }} /> Charges</span>
         </div>
       </div>
 
@@ -154,7 +154,7 @@ function Overview({ data }) {
                   <span className="table__strong">{money(c.total)}</span>
                 </div>
                 <div className="barlist__track">
-                  <div className="barlist__fill barlist__fill--clay" style={{ width: `${(c.total / catMax) * 100}%` }} />
+                  <div className="barlist__fill barlist__fill--accent" style={{ width: `${(c.total / catMax) * 100}%` }} />
                 </div>
               </div>
             ))}
@@ -196,7 +196,7 @@ function Revenues({ from, to }) {
                 <td className="table__muted">{date(r.startDate)} → {date(r.endDate)}</td>
                 <td className="num">{money(r.totals?.total)}</td>
                 <td className="num table__muted">{money(r.totals?.paid)}</td>
-                <td className="num" style={{ color: r.totals?.balance > 0 ? 'var(--clay)' : 'var(--ink-45)' }}>
+                <td className="num" style={{ color: r.totals?.balance > 0 ? 'var(--accent)' : 'var(--ink-45)' }}>
                   {r.totals?.balance > 0 ? money(r.totals.balance) : '—'}
                 </td>
               </tr>
@@ -309,14 +309,14 @@ function ByVehicle({ rows }) {
               </td>
               <td className="num">{money(v.revenue)}</td>
               <td className="num table__muted">{money(v.charges)}</td>
-              <td className="num table__strong" style={{ color: v.result >= 0 ? 'var(--ink)' : '#8a1d0c' }}>
+              <td className="num table__strong" style={{ color: v.result >= 0 ? 'var(--ink)' : 'var(--danger-deep)' }}>
                 {v.result >= 0 ? '+' : ''}{money(v.result)}
               </td>
               <td className="num">{v.occupancy}%</td>
               <td>
                 <div className="barlist__track">
                   <div
-                    className={`barlist__fill${v.result < 0 ? ' barlist__fill--clay' : ''}`}
+                    className={`barlist__fill${v.result < 0 ? ' barlist__fill--accent' : ''}`}
                     style={{ width: `${(Math.abs(v.result) / max) * 100}%` }}
                   />
                 </div>
@@ -364,7 +364,7 @@ function ChargeDialog({ onClose, onSaved }) {
       footer={
         <>
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
-          <button type="button" className="dbtn dbtn--clay" onClick={save} disabled={busy || !form.amount}>
+          <button type="button" className="dbtn dbtn--accent" onClick={save} disabled={busy || !form.amount}>
             {busy ? 'Enregistrement…' : 'Enregistrer'}
           </button>
         </>

@@ -34,7 +34,7 @@ export default function Overview() {
               <Tile
                 label="Résultat estimé"
                 value={money(data.result.month)}
-                variant={data.result.month >= 0 ? 'clay' : undefined}
+                variant={data.result.month >= 0 ? 'accent' : undefined}
                 note="CA du mois moins charges du mois"
               />
             </div>
@@ -176,7 +176,7 @@ export default function Overview() {
                                 {r.vehicle?.brand} {r.vehicle?.model}
                               </span>
                             </td>
-                            <td className="num" style={{ color: 'var(--clay)', fontWeight: 600 }}>
+                            <td className="num" style={{ color: 'var(--accent-on)', fontWeight: 600 }}>
                               {money(r.totals.balance)}
                             </td>
                           </tr>
@@ -189,14 +189,22 @@ export default function Overview() {
             </div>
 
             <div className="cols">
-              <Panel title="Cautions à restituer" sub={`${data.queues.deposits.length}`} flush>
+              <Panel
+                title="Cautions à restituer"
+                sub={
+                  data.queues.deposits.length > 6
+                    ? `6 sur ${data.queues.deposits.length}`
+                    : `${data.queues.deposits.length}`
+                }
+                flush
+              >
                 {data.queues.deposits.length === 0 ? (
                   <Empty>Aucune caution en attente.</Empty>
                 ) : (
                   <div className="tablewrap">
                     <table className="table">
                       <tbody>
-                        {data.queues.deposits.map((r) => (
+                        {data.queues.deposits.slice(0, 6).map((r) => (
                           <tr key={r._id}>
                             <td className="table__ref">
                               <Link to={`/dashboard/reservations/${r._id}`}>{r.reference}</Link>
@@ -235,7 +243,7 @@ export default function Overview() {
                           <td className="num table__muted">{money(v.charges)}</td>
                           <td
                             className="num table__strong"
-                            style={{ color: v.result >= 0 ? 'var(--ink)' : '#8a1d0c' }}
+                            style={{ color: v.result >= 0 ? 'var(--ink)' : 'var(--danger-deep)' }}
                           >
                             {v.result >= 0 ? '+' : ''}
                             {money(v.result)}

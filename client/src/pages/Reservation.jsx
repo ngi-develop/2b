@@ -171,7 +171,7 @@ export default function Reservation() {
           </nav>
           <div className="pagehead__inner">
             <div>
-              <span className="eyebrow" style={{ color: 'var(--clay)', marginBottom: 20 }}>
+              <span className="eyebrow" style={{ color: 'var(--accent-on)', marginBottom: 20 }}>
                 Demande de réservation
               </span>
               <h1 className="pagehead__title">
@@ -362,7 +362,7 @@ export default function Reservation() {
                   En envoyant ce formulaire, vous acceptez que 2B Location vous contacte
                   au sujet de cette demande. Aucune donnée n’est revendue.
                 </p>
-                <button type="submit" className="btn btn--clay" disabled={sending}>
+                <button type="submit" className="btn btn--accent" disabled={sending}>
                   {sending ? 'Envoi en cours…' : 'Envoyer la demande'} <Arrow />
                 </button>
               </div>

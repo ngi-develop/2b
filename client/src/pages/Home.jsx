@@ -67,7 +67,7 @@ export default function Home() {
         title={
           <div className="hero-rest">
             <p className="hero-rest__kicker">
-              <span className="eyebrow" style={{ color: 'rgba(239,237,231,.55)' }}>
+              <span className="eyebrow" style={{ color: 'rgba(252,252,253,.55)' }}>
                 Depuis {company.founded} — Casablanca
               </span>
             </p>
@@ -87,7 +87,7 @@ export default function Home() {
             </p>
 
             <div className="hero-rest__actions">
-              <Link to="/flotte" className="btn btn--clay">
+              <Link to="/flotte" className="btn btn--accent">
                 Louer une voiture <Arrow />
               </Link>
               <Link to="/professionnel" className="btn btn--onInk">
@@ -120,7 +120,7 @@ export default function Home() {
       <section className="ink-block" style={{ paddingBlock: 'var(--s-1)' }}>
         <div className="shell">
           <div className="searchrow">
-            <p className="eyebrow" style={{ color: 'rgba(239,237,231,.55)' }}>
+            <p className="eyebrow" style={{ color: 'rgba(252,252,253,.55)' }}>
               Vérifier les disponibilités
             </p>
             <p className="mono-note" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -352,7 +352,7 @@ export default function Home() {
       <Testimonials />
 
       {/* ---------- FINAL CTA ------------------------------------------- */}
-      <section className="clay-block sec--2">
+      <section className="accent-block sec--2">
         <div className="shell">
           <div className="finalcta">
             <div>
@@ -367,7 +367,7 @@ export default function Home() {
               <Link to="/professionnel" className="btn btn--onInk">
                 Louer un véhicule Car Wash <Arrow />
               </Link>
-              <p className="mono-note" style={{ color: 'rgba(239,237,231,.72)' }}>
+              <p className="mono-note" style={{ color: 'rgba(252,252,253,.72)' }}>
                 Ou appelez-nous : {company.phone}
               </p>
             </div>

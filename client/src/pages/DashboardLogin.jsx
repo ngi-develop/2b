@@ -90,7 +90,7 @@ export default function DashboardLogin() {
             </p>
           )}
 
-          <button type="submit" className="btn btn--clay btn--wide" style={{ marginTop: 26 }} disabled={busy}>
+          <button type="submit" className="btn btn--accent btn--wide" style={{ marginTop: 26 }} disabled={busy}>
             {busy ? 'Connexion…' : 'Se connecter'} <Arrow />
           </button>
         </form>
@@ -117,7 +117,7 @@ export default function DashboardLogin() {
           <p className="h3" style={{ maxWidth: '18ch' }}>
             Une donnée saisie une fois alimente tous les modules.
           </p>
-          <p className="mono-note" style={{ color: 'rgba(239,237,231,.7)', marginTop: 14 }}>
+          <p className="mono-note" style={{ color: 'rgba(252,252,253,.7)', marginTop: 14 }}>
             Tableau de bord — Planning — Réservations — Flotte — Clients — Finances — Échéances
           </p>
         </div>

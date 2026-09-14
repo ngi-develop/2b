@@ -116,7 +116,7 @@ export default function ReservationDetail() {
                 )}
                 <button
                   type="button"
-                  className="dbtn dbtn--clay dbtn--sm"
+                  className="dbtn dbtn--accent dbtn--sm"
                   disabled={!client || (client.status === 'blackliste' && !isAdmin)}
                   onClick={() => act(() => api.confirmReservation(id))}
                 >
@@ -125,13 +125,13 @@ export default function ReservationDetail() {
               </>
             )}
             {r.status === 'confirmee' && (
-              <button type="button" className="dbtn dbtn--clay dbtn--sm" onClick={() => setDialog('departure')}>
+              <button type="button" className="dbtn dbtn--accent dbtn--sm" onClick={() => setDialog('departure')}>
                 Enregistrer le départ
               </button>
             )}
             {r.status === 'en_cours' && (
               <>
-                <button type="button" className="dbtn dbtn--clay dbtn--sm" onClick={() => setDialog('return')}>
+                <button type="button" className="dbtn dbtn--accent dbtn--sm" onClick={() => setDialog('return')}>
                   Enregistrer le retour
                 </button>
                 <button type="button" className="dbtn dbtn--ghost dbtn--sm" onClick={() => setDialog('extend')}>
@@ -316,7 +316,7 @@ export default function ReservationDetail() {
                 <Row k="Encaissé" v={money(r.totals?.paid)} />
                 <div className="drow drow--total">
                   <span>Reste à payer</span>
-                  <span style={{ color: r.totals?.balance > 0 ? 'var(--clay)' : 'inherit' }}>
+                  <span style={{ color: r.totals?.balance > 0 ? 'var(--accent)' : 'inherit' }}>
                     {money(r.totals?.balance)}
                   </span>
                 </div>
@@ -454,7 +454,7 @@ function CheckpointDialog({ title, confirmLabel, defaultKm, hint, extraFields = 
       footer={
         <>
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
-          <button type="button" className="dbtn dbtn--clay" onClick={submit} disabled={busy || !form.km}>
+          <button type="button" className="dbtn dbtn--accent" onClick={submit} disabled={busy || !form.km}>
             {busy ? 'Enregistrement…' : confirmLabel}
           </button>
         </>
@@ -495,7 +495,7 @@ function PaymentDialog({ balance, onSubmit, onClose, busy, error }) {
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
           <button
             type="button"
-            className="dbtn dbtn--clay"
+            className="dbtn dbtn--accent"
             onClick={() => onSubmit({ ...form, amount: Number(form.amount) })}
             disabled={busy || !form.amount}
           >
@@ -538,7 +538,7 @@ function SimpleDialog({ title, label, type, defaultValue = '', onSubmit, onClose
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Fermer</button>
           <button
             type="button"
-            className={`dbtn ${danger ? 'dbtn--danger' : 'dbtn--clay'}`}
+            className={`dbtn ${danger ? 'dbtn--danger' : 'dbtn--accent'}`}
             onClick={() => onSubmit(value)}
             disabled={busy || !value}
           >
@@ -586,7 +586,7 @@ function AttachClientDialog({ requester, onPick, onClose, busy, error }) {
             </button>
             <button
               type="button"
-              className="dbtn dbtn--clay"
+              className="dbtn dbtn--accent"
               disabled={busy || !newClient.firstName || !newClient.lastName || !newClient.phone}
               onClick={async () => {
                 const created = await api.createClient(newClient)

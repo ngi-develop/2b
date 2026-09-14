@@ -167,7 +167,7 @@ function QuoteDialog({ request, onClose, onSaved }) {
           <button type="button" className="dbtn dbtn--ghost" onClick={() => save(false)} disabled={busy}>
             Enregistrer
           </button>
-          <button type="button" className="dbtn dbtn--clay" onClick={() => save(true)} disabled={busy || rows.length === 0}>
+          <button type="button" className="dbtn dbtn--accent" onClick={() => save(true)} disabled={busy || rows.length === 0}>
             {busy ? 'En cours…' : 'Envoyer le devis'}
           </button>
         </>

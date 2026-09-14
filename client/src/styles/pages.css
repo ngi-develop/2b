@@ -36,7 +36,7 @@
   color: var(--paper);
 }
 .pathway--ink .body-muted {
-  color: rgba(239, 237, 231, 0.68);
+  color: rgba(252, 252, 253, 0.68);
 }
 
 .pathway__media {
@@ -58,7 +58,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  background: var(--clay);
+  background: var(--accent);
   color: var(--paper);
   font-family: var(--f-head);
   font-weight: 700;
@@ -93,10 +93,13 @@
   top: 0.55em;
   width: 9px;
   height: 1.5px;
-  background: var(--clay);
+  background: var(--accent);
 }
 .ticklist--ink li {
-  color: rgba(239, 237, 231, 0.78);
+  color: rgba(252, 252, 253, 0.78);
+}
+.ticklist--ink li::before {
+  background: var(--accent-bright);
 }
 
 .pathway .textlink {
@@ -156,7 +159,7 @@
   font-size: var(--t-micro);
   font-weight: 600;
   letter-spacing: 0.1em;
-  color: rgba(239, 237, 231, 0.5);
+  color: rgba(252, 252, 253, 0.5);
 }
 
 @media (max-width: 880px) {
@@ -212,7 +215,7 @@
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: -0.03em;
-  color: var(--clay);
+  color: var(--accent-on);
   line-height: 1;
 }
 .timeline h3 {
@@ -312,7 +315,7 @@
   border-top: var(--hair) solid var(--line-dark);
   padding-top: 16px;
   font-size: 0.9375rem;
-  color: rgba(239, 237, 231, 0.66);
+  color: rgba(252, 252, 253, 0.66);
 }
 .exclusions strong {
   display: block;
@@ -348,7 +351,7 @@
   display: block;
 }
 .contactblock a:hover {
-  color: var(--clay);
+  color: var(--accent-on);
 }
 @media (max-width: 860px) {
   .contactgrid {
@@ -387,8 +390,8 @@
   padding-left: 8px;
 }
 .faqnav button.is-on {
-  color: var(--clay);
-  border-bottom-color: var(--clay);
+  color: var(--accent-on);
+  border-bottom-color: var(--accent-on);
 }
 @media (max-width: 860px) {
   .faqlayout {
@@ -477,8 +480,8 @@
   font-weight: 600;
 }
 .steprail__item.is-on .steprail__n {
-  background: var(--clay);
-  border-color: var(--clay);
+  background: var(--accent);
+  border-color: var(--accent-on);
   color: var(--paper);
 }
 
@@ -497,5 +500,5 @@
   font-size: clamp(5rem, 22vw, 16rem);
   letter-spacing: -0.05em;
   line-height: 0.8;
-  color: var(--clay);
+  color: var(--accent-on);
 }

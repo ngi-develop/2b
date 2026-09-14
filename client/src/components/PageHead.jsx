@@ -28,7 +28,7 @@ export default function PageHead({ eyebrow, title, intro, media, crumbs = [], as
         <div className="pagehead__inner">
           <div>
             {eyebrow && (
-              <span className="eyebrow" style={{ color: 'var(--clay)', marginBottom: 20 }}>
+              <span className="eyebrow" style={{ color: 'var(--accent-on)', marginBottom: 20 }}>
                 {eyebrow}
               </span>
             )}

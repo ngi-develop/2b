@@ -77,7 +77,7 @@ export default function ClientFile() {
           <Tile
             label="Impayé"
             value={money(c.summary.outstanding)}
-            variant={c.summary.outstanding > 0 ? 'clay' : undefined}
+            variant={c.summary.outstanding > 0 ? 'accent' : undefined}
           />
           <Tile label="Km parcourus" value={num(c.summary.kmDriven)} unit="km" />
           <Tile label="Retards" value={num(c.summary.lateReturns)} />
@@ -116,7 +116,7 @@ export default function ClientFile() {
                           <td className="num">{money(r.totals?.total)}</td>
                           <td
                             className="num"
-                            style={{ color: r.totals?.balance > 0 ? 'var(--clay)' : 'var(--ink-45)' }}
+                            style={{ color: r.totals?.balance > 0 ? 'var(--accent)' : 'var(--ink-45)' }}
                           >
                             {r.totals?.balance > 0 ? money(r.totals.balance) : '—'}
                           </td>
@@ -255,7 +255,7 @@ function StatusDialog({ client, onClose, onSaved }) {
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
           <button
             type="button"
-            className="dbtn dbtn--clay"
+            className="dbtn dbtn--accent"
             onClick={save}
             disabled={busy || (needsReason && !reason.trim())}
           >

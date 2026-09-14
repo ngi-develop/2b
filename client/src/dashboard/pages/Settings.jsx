@@ -108,7 +108,7 @@ function CompanyTab({ settings, onSaved, canEdit }) {
         <Field label="Adresse" name="address" value={form.address} onChange={set} full />
       </div>
       {canEdit && (
-        <button type="button" className="dbtn dbtn--clay" style={{ marginTop: 16 }} disabled={busy}
+        <button type="button" className="dbtn dbtn--accent" style={{ marginTop: 16 }} disabled={busy}
           onClick={() => save({ company: form })}>
           {busy ? 'Enregistrement…' : 'Enregistrer'}
         </button>
@@ -141,7 +141,7 @@ function RulesTab({ settings, onSaved, canEdit }) {
         <Field label="Modification possible (h avant)" name="modificationHours" type="number" value={form.modificationHours} onChange={set} />
       </div>
       {canEdit && (
-        <button type="button" className="dbtn dbtn--clay" style={{ marginTop: 16 }} disabled={busy}
+        <button type="button" className="dbtn dbtn--accent" style={{ marginTop: 16 }} disabled={busy}
           onClick={() => save({ rules: form })}>
           {busy ? 'Enregistrement…' : 'Enregistrer'}
         </button>
@@ -187,7 +187,7 @@ function OptionsTab({ settings, onSaved, canEdit }) {
         </table>
       </div>
       {canEdit && (
-        <button type="button" className="dbtn dbtn--clay" style={{ marginTop: 16 }} disabled={busy}
+        <button type="button" className="dbtn dbtn--accent" style={{ marginTop: 16 }} disabled={busy}
           onClick={() => save({ rentalOptions: rows })}>
           {busy ? 'Enregistrement…' : 'Enregistrer les options'}
         </button>
@@ -220,7 +220,7 @@ function AgenciesTab({ settings, onSaved, canEdit }) {
             onClick={() => setRows([...rows, { name: '', city: '', active: true }])}>
             + Ajouter une agence
           </button>
-          <button type="button" className="dbtn dbtn--clay" disabled={busy} onClick={() => save({ agencies: rows })}>
+          <button type="button" className="dbtn dbtn--accent" disabled={busy} onClick={() => save({ agencies: rows })}>
             {busy ? 'Enregistrement…' : 'Enregistrer'}
           </button>
         </div>
@@ -295,7 +295,7 @@ function NotificationsTab({ settings, onSaved, canEdit }) {
         />
       </div>
       {canEdit && (
-        <button type="button" className="dbtn dbtn--clay" style={{ marginTop: 16 }} disabled={busy}
+        <button type="button" className="dbtn dbtn--accent" style={{ marginTop: 16 }} disabled={busy}
           onClick={() => save({ notifications: form })}>
           {busy ? 'Enregistrement…' : 'Enregistrer'}
         </button>
@@ -312,7 +312,7 @@ function UsersTab() {
     <>
       <Banner>{error}</Banner>
       <div style={{ display: 'flex', marginBottom: 14 }}>
-        <button type="button" className="dbtn dbtn--clay dbtn--sm" onClick={() => setCreating(true)}>
+        <button type="button" className="dbtn dbtn--accent dbtn--sm" onClick={() => setCreating(true)}>
           + Nouvel utilisateur
         </button>
       </div>
@@ -363,7 +363,7 @@ function NewUserDialog({ onClose, onSaved }) {
       footer={
         <>
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
-          <button type="button" className="dbtn dbtn--clay" disabled={busy}
+          <button type="button" className="dbtn dbtn--accent" disabled={busy}
             onClick={async () => {
               setBusy(true); setError('')
               try { await api.createUser(form); onSaved() }

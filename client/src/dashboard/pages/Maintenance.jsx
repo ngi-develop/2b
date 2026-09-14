@@ -45,7 +45,7 @@ export default function Maintenance() {
         title="Échéances & maintenance"
         crumb={loading ? '' : `${rows.length} à venir · ${overdue} en retard`}
       >
-        <button type="button" className="dbtn dbtn--clay dbtn--sm" onClick={() => setPlanning(true)}>
+        <button type="button" className="dbtn dbtn--accent dbtn--sm" onClick={() => setPlanning(true)}>
           + Planifier une maintenance
         </button>
       </PageBar>
@@ -217,7 +217,7 @@ function PlanDialog({ onClose, onSaved }) {
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
           <button
             type="button"
-            className="dbtn dbtn--clay"
+            className="dbtn dbtn--accent"
             onClick={save}
             disabled={busy || !form.vehicle || !form.label}
           >
@@ -295,7 +295,7 @@ function CompleteDialog({ job, onClose, onSaved }) {
       footer={
         <>
           <button type="button" className="dbtn dbtn--ghost" onClick={onClose}>Annuler</button>
-          <button type="button" className="dbtn dbtn--clay" onClick={save} disabled={busy}>
+          <button type="button" className="dbtn dbtn--accent" onClick={save} disabled={busy}>
             {busy ? 'Enregistrement…' : 'Clôturer l’intervention'}
           </button>
         </>
