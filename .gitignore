@@ -1,8 +1,15 @@
+# secrets
 dev_key
 dev_key.pub
 .env
-.log
-/node_modules
-/dist
-/client/dist
-/client/node_modules
+.env.*
+!.env.example
+
+# dependencies & builds — unanchored so they match at any depth
+node_modules/
+dist/
+build/
+
+# logs & local noise
+*.log
+.DS_Store

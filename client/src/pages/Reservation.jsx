@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { fetchVehicle, submitReservation } from '../api/client.js'
-import { rentalOptions } from '../data/vehicles.js'
+import { fetchVehicle, fetchOptions, submitReservation } from '../api/client.js'
 import { pickupPoints } from '../data/site.js'
 import { img } from '../data/images.js'
 import { Arrow, Check } from '../components/Icons.jsx'
@@ -16,6 +15,7 @@ export default function Reservation() {
 
   const [vehicle, setVehicle] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [catalog, setCatalog] = useState([])
   const [options, setOptions] = useState([])
   const [errors, setErrors] = useState({})
   const [sending, setSending] = useState(false)
@@ -40,11 +40,14 @@ export default function Reservation() {
 
   useEffect(() => {
     let alive = true
-    fetchVehicle(slug).then((v) => {
-      if (!alive) return
-      setVehicle(v)
-      setLoading(false)
-    })
+    Promise.all([fetchVehicle(slug), fetchOptions()])
+      .then(([v, opts]) => {
+        if (!alive) return
+        setVehicle(v)
+        setCatalog(opts || [])
+        setLoading(false)
+      })
+      .catch(() => alive && setLoading(false))
     return () => {
       alive = false
     }
@@ -57,9 +60,9 @@ export default function Reservation() {
         start: form.start,
         end: form.end,
         options,
-        optionCatalog: rentalOptions,
+        optionCatalog: catalog,
       }),
-    [vehicle, form.start, form.end, options]
+    [vehicle, form.start, form.end, options, catalog]
   )
 
   function toggleOption(id) {
@@ -86,11 +89,9 @@ export default function Reservation() {
     }
     setSending(true)
     const res = await submitReservation({
-      vehicleId: vehicle.id,
       vehicleSlug: vehicle.slug,
       ...form,
       options,
-      quote: { days: q.days, total: q.total, deposit: q.deposit },
     })
     setSending(false)
     setResult(res)
@@ -251,7 +252,7 @@ export default function Reservation() {
                 <span className="index-mark">02</span>&nbsp;&nbsp;Options
               </p>
               <div className="optlist">
-                {rentalOptions.map((o) => (
+                {catalog.map((o) => (
                   <label className="optrow" key={o.id}>
                     <input
                       type="checkbox"

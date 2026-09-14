@@ -84,7 +84,13 @@ export default function Pro() {
       return
     }
     setSending(true)
-    const res = await submitQuoteRequest({ ...form, products, attachment: fileName })
+    const res = await submitQuoteRequest({
+      ...form,
+      // an empty date input is an empty string, which is not a date
+      startDate: form.startDate || undefined,
+      products,
+      attachmentName: fileName || undefined,
+    })
     setSending(false)
     setResult(res)
     window.scrollTo({ top: 0, behavior: 'smooth' })

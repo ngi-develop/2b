@@ -5,7 +5,7 @@ import SearchBar from '../components/SearchBar.jsx'
 import VehicleCard from '../components/VehicleCard.jsx'
 import { Arrow } from '../components/Icons.jsx'
 import { fetchVehicles } from '../api/client.js'
-import { categories, transmissions, fuels } from '../data/vehicles.js'
+import { categories, transmissions, fuels } from '../data/vocabulary.js'
 import { shots } from '../data/images.js'
 import { formatDate, formatDH } from '../lib/rental.js'
 

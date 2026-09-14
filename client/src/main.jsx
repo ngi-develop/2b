@@ -15,13 +15,17 @@ import './styles/pages.css'
 import './vendor/reactbits/ScrollExpand.css'
 import './vendor/reactbits/StaggeredMenu.css'
 import './styles/reactbits-overrides.css'
+import './styles/dashboard.css'
 
 import App from './App.jsx'
+import { AuthProvider } from './dashboard/AuthContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>
 )

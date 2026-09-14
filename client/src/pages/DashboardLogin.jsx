@@ -1,23 +1,27 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Arrow, Shield } from '../components/Icons.jsx'
 import { img, shots } from '../data/images.js'
 import { company } from '../data/site.js'
+import { useAuth } from '../dashboard/AuthContext.jsx'
 
-/**
- * Dashboard sign-in.
- *
- * Front end only for now — it validates the fields and shows what the server
- * will answer. Authentication itself belongs to the Express/JWT layer, which
- * is why nothing here pretends to check a credential.
- */
+/** Dashboard sign-in. Posts to /api/auth/login and stores the bearer token. */
 export default function DashboardLogin() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { signIn, user, loading } = useAuth()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
-  function onSubmit(e) {
+  // Already signed in — go straight through.
+  if (!loading && user) {
+    return <Navigate to={location.state?.from || '/dashboard'} replace />
+  }
+
+  async function onSubmit(e) {
     e.preventDefault()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 6) {
       setError('Identifiants incomplets. Vérifiez l’adresse e-mail et le mot de passe.')
@@ -25,13 +29,14 @@ export default function DashboardLogin() {
     }
     setError('')
     setBusy(true)
-    // Placeholder for POST /api/auth/login
-    setTimeout(() => {
+    try {
+      await signIn(email, password)
+      navigate(location.state?.from || '/dashboard', { replace: true })
+    } catch (err) {
+      setError(err.message)
+    } finally {
       setBusy(false)
-      setError(
-        'Authentification indisponible : le service back-end n’est pas encore connecté.'
-      )
-    }, 700)
+    }
   }
 
   return (
@@ -44,8 +49,8 @@ export default function DashboardLogin() {
           Connexion au tableau de bord.
         </h1>
         <p className="body-muted" style={{ marginBottom: 36, maxWidth: '44ch' }}>
-          Réservé aux équipes {company.legal}. Planning, réservations, flotte, clients,
-          finances et échéances.
+          Réservé aux équipes {company.legal}. Planning, réservations, flotte, clients, finances
+          et échéances.
         </p>
 
         <form onSubmit={onSubmit} noValidate>
@@ -85,12 +90,7 @@ export default function DashboardLogin() {
             </p>
           )}
 
-          <button
-            type="submit"
-            className="btn btn--clay btn--wide"
-            style={{ marginTop: 26 }}
-            disabled={busy}
-          >
+          <button type="submit" className="btn btn--clay btn--wide" style={{ marginTop: 26 }} disabled={busy}>
             {busy ? 'Connexion…' : 'Se connecter'} <Arrow />
           </button>
         </form>
@@ -112,17 +112,13 @@ export default function DashboardLogin() {
       </div>
 
       <div className="login__media">
-        <img
-          src={img(shots.sClassStreet, 1200, 1400)}
-          alt="Berline sombre photographiée en ville"
-        />
+        <img src={img(shots.sClassStreet, 1200, 1400)} alt="Berline sombre photographiée en ville" />
         <div className="login__mediaText">
           <p className="h3" style={{ maxWidth: '18ch' }}>
             Une donnée saisie une fois alimente tous les modules.
           </p>
           <p className="mono-note" style={{ color: 'rgba(239,237,231,.7)', marginTop: 14 }}>
-            Tableau de bord — Planning — Réservations — Flotte — Clients — Finances —
-            Échéances
+            Tableau de bord — Planning — Réservations — Flotte — Clients — Finances — Échéances
           </p>
         </div>
       </div>

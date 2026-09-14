@@ -3,15 +3,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { fetchVehicle } from '../api/client.js'
 import { img } from '../data/images.js'
 import { Arrow, Check } from '../components/Icons.jsx'
-import {
-  addDays,
-  countDays,
-  formatDH,
-  formatDate,
-  isAvailable,
-  nextFreeDate,
-  today,
-} from '../lib/rental.js'
+import { addDays, countDays, formatDH, formatDate, today } from '../lib/rental.js'
 
 export default function VehicleDetail() {
   const { slug } = useParams()
@@ -25,19 +17,24 @@ export default function VehicleDetail() {
   const [start, setStart] = useState(params.get('start') || addDays(today(), 1))
   const [end, setEnd] = useState(params.get('end') || addDays(today(), 5))
 
+  /* Availability is decided by the server against live reservations, so the
+     dates are part of the request rather than something we evaluate here. */
   useEffect(() => {
     let alive = true
     setLoading(true)
-    fetchVehicle(slug).then((v) => {
-      if (!alive) return
-      setVehicle(v)
-      setLoading(false)
-      setShot(0)
-    })
+    fetchVehicle(slug, { start, end })
+      .then((v) => {
+        if (!alive) return
+        setVehicle(v)
+        setLoading(false)
+      })
+      .catch(() => alive && setLoading(false))
     return () => {
       alive = false
     }
-  }, [slug])
+  }, [slug, start, end])
+
+  useEffect(() => setShot(0), [slug])
 
   if (loading) {
     return (
@@ -61,8 +58,7 @@ export default function VehicleDetail() {
   }
 
   const days = Math.max(countDays(start, end), 1)
-  const available = isAvailable(vehicle, start, end)
-  const free = available ? null : nextFreeDate(vehicle, start)
+  const available = vehicle.available !== false
   const subtotal = vehicle.pricePerDay * days
 
   const specs = [
@@ -241,9 +237,8 @@ export default function VehicleDetail() {
                 ) : (
                   <>
                     <p className="notice">
-                      <strong>Indisponible pour ces dates.</strong>
-                      {free ? ` Ce véhicule se libère le ${formatDate(free)}.` : ''} Modifiez
-                      la période, ou consultez le reste de la flotte.
+                      <strong>Indisponible pour ces dates.</strong> Modifiez la période, ou
+                      consultez le reste de la flotte.
                     </p>
                     <button type="button" className="btn btn--wide" disabled>
                       Poursuivre la demande

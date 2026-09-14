@@ -1,70 +1,58 @@
 /**
- * API seam.
+ * Public site API.
  *
- * Every screen reads through these functions, so wiring the Express + Mongo
- * backend later means replacing the bodies here — not touching components.
- * Today they resolve from the mock dataset after a short delay so loading
- * states are real and not decorative.
+ * These are the only calls the marketing site makes. None of them require a
+ * token, and none of them can reach the Car Wash fleet — that filtering is
+ * enforced server-side, not here.
  */
 
-import { vehicles, rentalOptions } from '../data/vehicles.js'
-import { isAvailable } from '../lib/rental.js'
+import { request, qs } from './http.js'
 
-const LATENCY = 260
-
-function settle(value) {
-  return new Promise((resolve) => setTimeout(() => resolve(value), LATENCY))
-}
-
-export async function fetchVehicles(params = {}) {
+export function fetchVehicles(params = {}) {
   const { city, start, end, categories = [], transmission, fuel, seats, maxPrice } = params
-
-  let list = vehicles.slice()
-
-  if (city) list = list.filter((v) => v.cities.includes(city))
-  if (categories.length) list = list.filter((v) => categories.includes(v.category))
-  if (transmission) list = list.filter((v) => v.transmission === transmission)
-  if (fuel) list = list.filter((v) => v.fuel === fuel)
-  if (seats) list = list.filter((v) => v.seats >= Number(seats))
-  if (maxPrice) list = list.filter((v) => v.pricePerDay <= Number(maxPrice))
-
-  // Unavailable vehicles stay visible but flagged, per the brief.
-  list = list.map((v) => ({ ...v, available: isAvailable(v, start, end) }))
-
-  return settle(list)
+  return request(
+    `/vehicles${qs({
+      city,
+      start: start || undefined,
+      end: end || undefined,
+      // The public endpoint filters on a single category; the rail's
+      // multi-select is applied client-side over the result.
+      category: categories.length === 1 ? categories[0] : undefined,
+      transmission,
+      fuel,
+      seats,
+      maxPrice,
+    })}`
+  ).then((rows) =>
+    categories.length > 1 ? rows.filter((v) => categories.includes(v.category)) : rows
+  )
 }
 
-export async function fetchVehicle(slug) {
-  const found = vehicles.find((v) => v.slug === slug)
-  if (!found) return settle(null)
-  return settle({ ...found })
-}
-
-export async function fetchOptions() {
-  return settle(rentalOptions)
-}
-
-/** Reservation request — becomes a "demande" in the company dashboard. */
-export async function submitReservation(payload) {
-  console.info('[2B] demande de réservation', payload)
-  return settle({
-    ok: true,
-    reference: `R-${Math.floor(1000 + Math.random() * 9000)}`,
-    status: 'en attente de validation',
+export function fetchVehicle(slug, { start, end } = {}) {
+  return request(`/vehicles/${encodeURIComponent(slug)}${qs({ start, end })}`).catch((err) => {
+    if (err.status === 404) return null
+    throw err
   })
 }
 
-/** Professional Car Wash quote request. No price is ever returned here. */
-export async function submitQuoteRequest(payload) {
-  console.info('[2B] demande de devis professionnel', payload)
-  return settle({
-    ok: true,
-    reference: `D-${Math.floor(1000 + Math.random() * 9000)}`,
-    status: 'en cours d’analyse',
-  })
+export function fetchOptions() {
+  return request('/options')
 }
 
-export async function submitContact(payload) {
-  console.info('[2B] message contact', payload)
-  return settle({ ok: true })
+export function fetchSiteConfig() {
+  return request('/site-config')
+}
+
+/** Becomes a "demande" awaiting manual validation — never a firm booking. */
+export function submitReservation(payload) {
+  return request('/reservations', { method: 'POST', body: payload })
+}
+
+/** Car Wash enquiry. The response never carries a price. */
+export function submitQuoteRequest(payload) {
+  return request('/quote-requests', { method: 'POST', body: payload })
+}
+
+export function submitContact(payload) {
+  return request('/contact', { method: 'POST', body: payload })
 }

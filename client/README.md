@@ -41,17 +41,19 @@ company dashboard, and every screen says so.
 | `/faq` | FAQ |
 | `/contact` | Contact |
 | `/dashboard/connexion` | Dashboard sign-in |
+| `/dashboard/*` | Company dashboard (authenticated, lazily loaded) |
 
 ## Structure
 
 ```
 src/
-  api/client.js        API seam — mock now, Express later (see below)
+  api/                 http wrapper + public and dashboard clients
   components/          Header, Footer, cards, form primitives, icons
-  data/                Fleet, site copy, verified photo ids
-  lib/rental.js        Dates, availability, pricing
-  pages/               One file per route
-  styles/              tokens → base → layout → ui → pages → overrides
+  dashboard/           dashboard shell, auth context, module pages
+  data/                Site copy and verified photo ids
+  lib/rental.js        Dates and pricing helpers
+  pages/               One file per public route
+  styles/              tokens → base → layout → ui → pages → overrides → dashboard
   vendor/reactbits/    Vendored third-party components
 ```
 
@@ -88,28 +90,25 @@ All restyling lives in `styles/reactbits-overrides.css`, imported last.
 
 Unsplash, referenced by photo id in `data/images.js` and sized through `img()`
 so cards never pull a 3000px original. Every id was checked to resolve before
-being committed. Vehicle photos move to the fleet documents once the API
-exists; the editorial shots stay.
+being committed. Vehicle photos now live on the fleet documents served by the
+API; the editorial shots stay here.
 
-## Connecting the back end
+## The back end
 
-Every screen reads through `src/api/client.js`, which currently resolves from
-the mock dataset after a short delay. Wiring Express + MongoDB means replacing
-the function bodies there — components do not change. Vite already proxies
-`/api` to `http://localhost:5000` (see `vite.config.js`).
+Both the public site and the dashboard talk to the Express API in `../server`.
+Start it first (see the root README) — Vite proxies `/api` to
+`http://localhost:5000` in both `dev` and `preview`.
 
-Endpoints the front end expects:
+- `src/api/http.js` — fetch wrapper, bearer token, 401 handling
+- `src/api/client.js` — public endpoints, no authentication
+- `src/api/dashboard.js` — everything behind `/dashboard`
 
-| Function | Method | Path |
-|---|---|---|
-| `fetchVehicles` | GET | `/api/vehicles` (filters as query params) |
-| `fetchVehicle` | GET | `/api/vehicles/:slug` |
-| `fetchOptions` | GET | `/api/options` |
-| `submitReservation` | POST | `/api/reservations` |
-| `submitQuoteRequest` | POST | `/api/quote-requests` |
-| `submitContact` | POST | `/api/contact` |
+Nothing is mocked any more; `src/data/` now only holds static site copy and
+the photo ids.
 
-Still to build: the Express/Mongoose API, and the dashboard itself — tableau de
-bord, planning, réservations, flotte, clients, finances, échéances, paramètres —
-per `Dashboard 2B Location.pdf`. `/dashboard/connexion` is the entry point and
-does not yet authenticate.
+## Dashboard
+
+`/dashboard/*`, lazily loaded so a visitor to the marketing site never
+downloads it. `src/dashboard/` holds the shell, the auth context and one page
+per module. It reuses the same design tokens at a higher density — see the
+root README for the module list and the rules the server enforces.

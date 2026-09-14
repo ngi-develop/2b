@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ScrollExpand from '../vendor/reactbits/ScrollExpand.jsx'
 import SearchBar from '../components/SearchBar.jsx'
@@ -8,19 +9,36 @@ import Reveal from '../components/Reveal.jsx'
 import Testimonials from '../components/Testimonials.jsx'
 import { Arrow, ArrowDown } from '../components/Icons.jsx'
 import { img, shots } from '../data/images.js'
-import { vehicles } from '../data/vehicles.js'
+import { fetchVehicles } from '../api/client.js'
 import { cities, guarantees, bookingSteps, zones, aboutStats, company } from '../data/site.js'
 import useMediaQuery from '../lib/useMediaQuery.js'
 
-const featured = ['dacia-duster', 'volkswagen-golf-8', 'toyota-land-cruiser', 'mercedes-classe-a']
+/** How many vehicles the home page previews before sending you to /flotte. */
+const PREVIEW_COUNT = 4
 
 export default function Home() {
   const narrow = useMediaQuery('(max-width: 900px)')
+  const [preview, setPreview] = useState([])
 
-  const preview = featured
-    .map((slug) => vehicles.find((v) => v.slug === slug))
-    .filter(Boolean)
-    .map((v) => ({ ...v, available: true }))
+  /* One spread across the price range rather than the four cheapest, so the
+     preview reads as a fleet and not as a discount rack. */
+  useEffect(() => {
+    let alive = true
+    fetchVehicles()
+      .then((rows) => {
+        if (!alive || !rows?.length) return
+        const step = Math.max(Math.floor(rows.length / PREVIEW_COUNT), 1)
+        const spread = []
+        for (let i = 0; i < rows.length && spread.length < PREVIEW_COUNT; i += step) {
+          spread.push(rows[i])
+        }
+        setPreview(spread)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [])
 
   /* Resting geometry of the hero frame.
      Wide: a full-height column flush to the right edge, headline on the left.
@@ -199,11 +217,13 @@ export default function Home() {
               </Link>
             }
           />
-          <div className="fleet-grid">
-            {preview.map((v) => (
-              <VehicleCard key={v.id} vehicle={v} />
-            ))}
-          </div>
+          {preview.length > 0 && (
+            <div className="fleet-grid">
+              {preview.map((v) => (
+                <VehicleCard key={v.id} vehicle={v} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

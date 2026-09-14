@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { pickupPoints } from '../data/site.js'
-import { categories } from '../data/vehicles.js'
+import { categories } from '../data/vocabulary.js'
 import { addDays, today } from '../lib/rental.js'
 import { Search } from './Icons.jsx'
 
