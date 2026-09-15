@@ -3,8 +3,12 @@
  * clients across every status, rentals in the past, in progress and booked
  * ahead, charges, upcoming deadlines and Car Wash enquiries.
  *
- *   npm run seed            # wipes the business collections and reseeds
- *   npm run seed -- --keep  # only creates the admin + settings if missing
+ *   npm run seed                  # wipes everything and reseeds a demo company
+ *   npm run seed -- --catalogue   # admin + settings + the fleet, nothing else
+ *   npm run seed -- --keep        # admin + settings only
+ *
+ * --catalogue is the one a real deployment wants: a fleet to sell, with no
+ * invented clients, reservations or accounting entries. It is idempotent.
  *
  * Refuses to wipe a production database.
  */
@@ -43,12 +47,14 @@ const pick = (arr, i) => arr[i % arr.length]
  * directly — with the in-memory fallback, a separate `npm run seed` process
  * would populate a database that dies with it.
  */
-export async function seedDatabase({ keepOnly = false } = {}) {
-  if (isProd && !keepOnly) {
-    throw new Error('Refus de réinitialiser une base de production. Utilisez --keep.')
+export async function seedDatabase({ keepOnly = false, catalogueOnly = false } = {}) {
+  if (isProd && !keepOnly && !catalogueOnly) {
+    throw new Error(
+      'Refus de réinitialiser une base de production. Utilisez --catalogue (flotte) ou --keep (admin seul).'
+    )
   }
 
-  if (!keepOnly) {
+  if (!keepOnly && !catalogueOnly) {
     console.log('[seed] clearing collections…')
     await Promise.all([
       Vehicle.deleteMany({}),
@@ -119,6 +125,15 @@ export async function seedDatabase({ keepOnly = false } = {}) {
 
   /* ------------------------------------------------------------ vehicles -- */
   console.log('[seed] fleet…')
+
+  /* --catalogue re-runs safely: it tops up a fleet rather than duplicating
+     one, so a deployment can call it without checking first. */
+  if (catalogueOnly && (await Vehicle.countDocuments()) > 0) {
+    const have = await Vehicle.countDocuments()
+    console.log(`[seed] --catalogue: ${have} véhicule(s) déjà en base, rien à faire.`)
+    return { vehicles: have, unchanged: true }
+  }
+
   const vehicles = []
   for (const spec of [...fleet, ...carwashFleet]) {
     const { purchasePrice, monthlyPayment, statusReady, ...rest } = spec
@@ -143,6 +158,17 @@ export async function seedDatabase({ keepOnly = false } = {}) {
     vehicles.push(v)
   }
   const tourism = vehicles.filter((v) => v.fleetType === 'tourisme')
+
+  /* A real deployment wants a catalogue to sell, not invented customers and
+     bookings in its production database. Stop here for --catalogue. */
+  if (catalogueOnly) {
+    console.log(
+      `[seed] --catalogue: ${vehicles.length} véhicules créés ` +
+        `(${tourism.length} tourisme, ${vehicles.length - tourism.length} Car Wash). ` +
+        'Aucun client, aucune réservation, aucune écriture comptable.'
+    )
+    return { vehicles: vehicles.length, tourism: tourism.length }
+  }
 
   /* ------------------------------------------------------------- clients -- */
   console.log('[seed] clients…')
@@ -577,8 +603,9 @@ const invokedDirectly =
 
 if (invokedDirectly) {
   const keepOnly = process.argv.includes('--keep')
+  const catalogueOnly = process.argv.includes('--catalogue')
   connectDB()
-    .then(() => seedDatabase({ keepOnly }))
+    .then(() => seedDatabase({ keepOnly, catalogueOnly }))
     .then(() => disconnectDB())
     .catch(async (err) => {
       console.error('[seed] failed:', err)

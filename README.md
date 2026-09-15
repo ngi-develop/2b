@@ -55,8 +55,17 @@ until something rebuilds it. That is what this section is for.
 ```bash
 cp .env.example .env          # set JWT_SECRET and SEED_ADMIN_PASSWORD
 docker compose up -d --build
-docker compose exec app npm run seed -- --keep   # first deploy only
+docker compose exec app npm run seed:catalogue   # first deploy
 ```
+
+`seed:catalogue` creates the administrator, the settings **and the fleet** —
+the catalogue the public site sells. It invents no clients, no reservations
+and no accounting entries, and it is safe to re-run: if vehicles already
+exist it does nothing.
+
+Do not use `npm run seed -- --keep` to stand a site up. It stops after the
+admin and settings, so the database has no vehicles and the home page shows
+no cars at all.
 
 The site is then on `http://<host>:8080` (`APP_PORT` in `.env`). One image
 builds the front end and serves it from the API on a single origin, so there
@@ -72,9 +81,13 @@ git pull && docker compose up -d --build
 **`--build` is the important part.** Without it Docker reuses the existing
 image, the front end is never rebuilt, and the site does not change.
 
-`docker compose exec app npm run seed -- --keep` is safe to re-run: in
-production the seed refuses to wipe anything and only ensures the admin
-account and settings exist.
+Seeding is not part of a redeploy — the database persists in its own volume.
+
+| command | creates |
+|---|---|
+| `npm run seed:catalogue` | admin, settings, fleet — the production bootstrap |
+| `npm run seed -- --keep` | admin and settings only, no vehicles |
+| `npm run seed` | a full demo company; **refuses to run in production** |
 
 ### Without Docker
 
@@ -98,6 +111,18 @@ keep it up.
   no-cache`. Asset filenames are content-hashed and served `immutable`, so a
   real rebuild always produces new URLs; if the HTML still references the old
   hashes, the image was not rebuilt.
+
+### If the home page shows no cars
+
+`curl https://<host>/api/vehicles` — an empty `[]` means the database has no
+fleet, which is what `seed -- --keep` leaves behind. Run:
+
+```bash
+docker compose exec app npm run seed:catalogue
+```
+
+The catalogue sections hide themselves when there is no fleet, so an empty
+database shows a shorter page rather than headings over empty space.
 
 ## Checks
 

@@ -8,7 +8,8 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "seed": "node src/seed/seed.js",
-    "test:api": "node scripts/smoke.js"
+    "test:api": "node scripts/smoke.js",
+    "seed:catalogue": "node src/seed/seed.js --catalogue"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

@@ -31,24 +31,30 @@ const TRUST_ICONS = { shield: Shield, headset: Headset, tag: Tag, truck: Truck }
 
 export default function Home() {
   const narrow = useMediaQuery('(max-width: 900px)')
-  const [fleet, setFleet] = useState([])
+  const [fleet, setFleet] = useState(null)
 
   useEffect(() => {
     let alive = true
     fetchVehicles()
       .then((rows) => alive && setFleet(rows || []))
-      .catch(() => {})
+      .catch(() => alive && setFleet([]))
     return () => {
       alive = false
     }
   }, [])
+
+  /* `null` until the fetch settles, then an array. The catalogue sections are
+     rendered whole or not at all — a heading standing over an empty shelf is
+     worse than no section, and that is exactly what a deployment with no
+     fleet yet used to show. */
+  const hasFleet = Array.isArray(fleet) && fleet.length > 0
 
   /* Category tiles are derived from the live fleet rather than hard-coded:
      each carries its real "from" price and model count, and a representative
      photograph taken from the dearest car in that category. */
   const categories = useMemo(() => {
     const byCategory = new Map()
-    for (const v of fleet) {
+    for (const v of fleet || []) {
       if (!byCategory.has(v.category)) byCategory.set(v.category, [])
       byCategory.get(v.category).push(v)
     }
@@ -68,7 +74,7 @@ export default function Home() {
   /* One vehicle spread across the price range rather than the four cheapest,
      so the preview reads as a fleet and not as a discount rack. */
   const preview = useMemo(() => {
-    if (!fleet.length) return []
+    if (!fleet?.length) return []
     const step = Math.max(Math.floor(fleet.length / PREVIEW_COUNT), 1)
     const out = []
     for (let i = 0; i < fleet.length && out.length < PREVIEW_COUNT; i += step) out.push(fleet[i])
@@ -171,6 +177,7 @@ export default function Home() {
       />
 
       {/* ---------- 01 · CATEGORIES ------------------------------------- */}
+      {hasFleet && (
       <section className="sec sec--lopsided">
         <div className="shell">
           <SectionHead
@@ -185,8 +192,7 @@ export default function Home() {
             }
           />
 
-          {categories.length > 0 && (
-            <div className="catgrid">
+          <div className="catgrid">
               {categories.map((c, i) => (
                 <Reveal key={c.name} delay={i * 60}>
                   <Link
@@ -207,12 +213,13 @@ export default function Home() {
                   </Link>
                 </Reveal>
               ))}
-            </div>
-          )}
+          </div>
         </div>
       </section>
+      )}
 
       {/* ---------- 02 · POPULAR VEHICLES ------------------------------- */}
+      {hasFleet && (
       <section className="sec--2" style={{ paddingBottom: 'var(--s-3)' }}>
         <div className="shell">
           <SectionHead
@@ -227,15 +234,14 @@ export default function Home() {
             }
           />
 
-          {preview.length > 0 && (
-            <div className="fleet-grid">
-              {preview.map((v) => (
-                <VehicleCard key={v.id} vehicle={v} cta />
-              ))}
-            </div>
-          )}
+          <div className="fleet-grid">
+            {preview.map((v) => (
+              <VehicleCard key={v.id} vehicle={v} cta />
+            ))}
+          </div>
         </div>
       </section>
+      )}
 
       {/* ---------- TRUST BAND ------------------------------------------ */}
       <section className="ink-block" style={{ paddingBlock: 'var(--s-1)' }}>
