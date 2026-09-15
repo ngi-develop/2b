@@ -1,12 +1,54 @@
+# Full stack: MongoDB + the app (API and the built site on one origin).
+#
+#   cp .env.example .env     # set JWT_SECRET
+#   docker compose up -d --build
+#
+# Redeploying after a git pull:
+#   git pull && docker compose up -d --build
+# The --build is what regenerates the front-end bundle. Without it Docker
+# reuses the old image and nothing changes.
+
 services:
   mongo:
     image: mongo:7
     container_name: 2b-mongo
     restart: unless-stopped
-    ports:
-      - '27017:27017'
     volumes:
       - mongo-data:/data/db
+    # Not published to the host by default — the app reaches it over the
+    # compose network. Uncomment only if you need to connect from outside.
+    # ports:
+    #   - '27017:27017'
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping")']
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 2b-app
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGODB_URI: mongodb://mongo:27017/2b_location
+      # Required in production — the server refuses to boot without it.
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-12h}
+      # Same origin, so the browser never issues a cross-origin request.
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@2blocation.ma}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?set SEED_ADMIN_PASSWORD in .env}
+    ports:
+      # Host port is configurable so this can sit behind an existing nginx.
+      - '${APP_PORT:-8080}:5000'
 
 volumes:
   mongo-data:

@@ -1,0 +1,23 @@
+# Never copy host build output or dependencies into the image — they are
+# rebuilt inside it, and copying them breaks the layer cache and can smuggle
+# a native module built for the wrong platform.
+**/node_modules
+**/dist
+**/build
+
+# secrets
+.env
+**/.env
+dev_key
+dev_key.pub
+
+# noise
+.git
+.gitignore
+**/*.log
+*.md
+**/*.md
+*.pdf
+*.png
+.vscode
+.idea

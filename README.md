@@ -34,14 +34,70 @@ seeds it automatically**, so the whole stack runs with no database installed.
 That data is wiped on restart. To persist it:
 
 ```bash
-docker compose up -d                       # mongo:7 on :27017
+docker compose up -d mongo                 # mongo:7 only, for local dev
 # then in server/.env
 MONGODB_URI=mongodb://127.0.0.1:27017/2b_location
 npm run seed                               # populate it once
 ```
 
+For a real deployment see [Deploying](#deploying) — `docker compose up -d
+--build` runs the whole stack, front end included.
+
 Seeded administrator: `admin@2blocation.ma` / `Change-me-2026`
 (also `nadia@…` as responsable and `yassine@…` as agent, same password).
+
+## Deploying
+
+The site is a Vite SPA: `git pull` brings **source only**, never the built
+bundle (`dist/` is gitignored). Pulling on a server changes nothing visible
+until something rebuilds it. That is what this section is for.
+
+```bash
+cp .env.example .env          # set JWT_SECRET and SEED_ADMIN_PASSWORD
+docker compose up -d --build
+docker compose exec app npm run seed -- --keep   # first deploy only
+```
+
+The site is then on `http://<host>:8080` (`APP_PORT` in `.env`). One image
+builds the front end and serves it from the API on a single origin, so there
+is no CORS and no nginx vhost to keep in sync — put your own proxy in front
+for TLS if you want one.
+
+### Redeploying
+
+```bash
+git pull && docker compose up -d --build
+```
+
+**`--build` is the important part.** Without it Docker reuses the existing
+image, the front end is never rebuilt, and the site does not change.
+
+`docker compose exec app npm run seed -- --keep` is safe to re-run: in
+production the seed refuses to wipe anything and only ensures the admin
+account and settings exist.
+
+### Without Docker
+
+```bash
+git pull
+cd client && npm ci && npm run build     # <- the step that is easy to forget
+cd ../server && npm ci --omit=dev
+NODE_ENV=production MONGODB_URI=... JWT_SECRET=... node src/index.js
+```
+
+Express serves `client/dist` whenever that build exists, so the API and the
+site come from the same process. Use a process manager (systemd, pm2) to
+keep it up.
+
+### If a deploy does not show up
+
+- `docker compose ps` — is `2b-app` running, and is it `healthy`?
+- `docker compose logs app --tail=50` — in production the server **refuses to
+  boot** without `JWT_SECRET` and `MONGODB_URI`, and says so.
+- `curl -I https://<host>/` — `index.html` must come back `Cache-Control:
+  no-cache`. Asset filenames are content-hashed and served `immutable`, so a
+  real rebuild always produces new URLs; if the HTML still references the old
+  hashes, the image was not rebuilt.
 
 ## Checks
 
