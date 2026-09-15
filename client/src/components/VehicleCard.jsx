@@ -6,8 +6,12 @@ import { Arrow } from './Icons.jsx'
 /**
  * Fleet card. Unavailable vehicles stay in the grid — the brief is explicit
  * that they remain visible, greyed, labelled and not selectable.
+ *
+ * `cta` swaps the small arrow for a full-width button. The catalogue keeps
+ * the arrow (the whole row is already a click target); the home page uses the
+ * button, where a visitor is being invited rather than browsing.
  */
-export default function VehicleCard({ vehicle, start, end }) {
+export default function VehicleCard({ vehicle, start, end, cta = false }) {
   const available = vehicle.available !== false
   const free = available ? null : nextFreeDate(vehicle, start)
 
@@ -65,16 +69,28 @@ export default function VehicleCard({ vehicle, start, end }) {
             <span className="price__val">{formatDH(vehicle.pricePerDay)}</span>
             <span className="price__unit">/ jour</span>
           </p>
-          {available ? (
-            <Link to={href} className="vcard__go" aria-label={`Voir ${vehicle.brand} ${vehicle.model}`}>
-              <Arrow />
+          {!cta &&
+            (available ? (
+              <Link to={href} className="vcard__go" aria-label={`Voir ${vehicle.brand} ${vehicle.model}`}>
+                <Arrow />
+              </Link>
+            ) : (
+              <span className="vcard__go" aria-disabled="true">
+                <Arrow />
+              </span>
+            ))}
+        </div>
+
+        {cta &&
+          (available ? (
+            <Link to={href} className="btn btn--accent btn--sm btn--wide vcard__cta">
+              Voir le véhicule <Arrow />
             </Link>
           ) : (
-            <span className="vcard__go" aria-disabled="true">
-              <Arrow />
+            <span className="btn btn--sm btn--wide vcard__cta" aria-disabled="true">
+              Indisponible
             </span>
-          )}
-        </div>
+          ))}
       </div>
     </article>
   )

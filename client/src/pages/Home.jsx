@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ScrollExpand from '../vendor/reactbits/ScrollExpand.jsx'
 import SearchBar from '../components/SearchBar.jsx'
@@ -6,39 +6,74 @@ import Marquee from '../components/Marquee.jsx'
 import SectionHead from '../components/SectionHead.jsx'
 import VehicleCard from '../components/VehicleCard.jsx'
 import Reveal from '../components/Reveal.jsx'
-import Testimonials from '../components/Testimonials.jsx'
-import { Arrow, ArrowDown } from '../components/Icons.jsx'
+import { Arrow, ArrowDown, Headset, Shield, Tag, Truck } from '../components/Icons.jsx'
 import { img, shots } from '../data/images.js'
 import { fetchVehicles } from '../api/client.js'
-import { cities, guarantees, bookingSteps, zones, aboutStats, company } from '../data/site.js'
+import { formatDH } from '../lib/rental.js'
+import {
+  cities,
+  bookingSteps,
+  aboutStats,
+  company,
+  trustPoints,
+  proPitch,
+} from '../data/site.js'
 import useMediaQuery from '../lib/useMediaQuery.js'
 
-/** How many vehicles the home page previews before sending you to /flotte. */
+/** How many vehicles and categories the landing page previews. */
 const PREVIEW_COUNT = 4
+
+/* Which categories to surface, in order of preference. Only those the fleet
+   actually contains are shown, so the row never advertises an empty shelf. */
+const CATEGORY_ORDER = ['Citadine', 'SUV', 'Berline', 'Premium', '4x4', 'Compacte', 'Familiale']
+
+const TRUST_ICONS = { shield: Shield, headset: Headset, tag: Tag, truck: Truck }
 
 export default function Home() {
   const narrow = useMediaQuery('(max-width: 900px)')
-  const [preview, setPreview] = useState([])
+  const [fleet, setFleet] = useState([])
 
-  /* One spread across the price range rather than the four cheapest, so the
-     preview reads as a fleet and not as a discount rack. */
   useEffect(() => {
     let alive = true
     fetchVehicles()
-      .then((rows) => {
-        if (!alive || !rows?.length) return
-        const step = Math.max(Math.floor(rows.length / PREVIEW_COUNT), 1)
-        const spread = []
-        for (let i = 0; i < rows.length && spread.length < PREVIEW_COUNT; i += step) {
-          spread.push(rows[i])
-        }
-        setPreview(spread)
-      })
+      .then((rows) => alive && setFleet(rows || []))
       .catch(() => {})
     return () => {
       alive = false
     }
   }, [])
+
+  /* Category tiles are derived from the live fleet rather than hard-coded:
+     each carries its real "from" price and model count, and a representative
+     photograph taken from the dearest car in that category. */
+  const categories = useMemo(() => {
+    const byCategory = new Map()
+    for (const v of fleet) {
+      if (!byCategory.has(v.category)) byCategory.set(v.category, [])
+      byCategory.get(v.category).push(v)
+    }
+    return CATEGORY_ORDER.filter((c) => byCategory.has(c))
+      .slice(0, PREVIEW_COUNT)
+      .map((name) => {
+        const rows = byCategory.get(name).slice().sort((a, b) => b.pricePerDay - a.pricePerDay)
+        return {
+          name,
+          count: rows.length,
+          from: Math.min(...rows.map((v) => v.pricePerDay)),
+          image: rows[0].image,
+        }
+      })
+  }, [fleet])
+
+  /* One vehicle spread across the price range rather than the four cheapest,
+     so the preview reads as a fleet and not as a discount rack. */
+  const preview = useMemo(() => {
+    if (!fleet.length) return []
+    const step = Math.max(Math.floor(fleet.length / PREVIEW_COUNT), 1)
+    const out = []
+    for (let i = 0; i < fleet.length && out.length < PREVIEW_COUNT; i += step) out.push(fleet[i])
+    return out
+  }, [fleet])
 
   /* Resting geometry of the hero frame.
      Wide: a full-height column flush to the right edge, headline on the left.
@@ -135,100 +170,97 @@ export default function Home() {
         items={[...cities, 'Livraison aéroport 24h/24', 'Assistance nationale', 'Sans frais cachés']}
       />
 
-      {/* ---------- TWO TRACKS ------------------------------------------ */}
+      {/* ---------- 01 · CATEGORIES ------------------------------------- */}
       <section className="sec sec--lopsided">
         <div className="shell">
           <SectionHead
             index="01"
-            eyebrow="Deux parcours, séparés"
-            title="Vous partez en vacances, ou vous montez une activité."
-            meta="Les deux offres ne se mélangent jamais : la flotte tourisme a ses prix et son calendrier, les véhicules Car Wash se chiffrent au cas par cas."
-          />
-
-          <div className="pathways">
-            <Reveal className="pathway">
-              <div className="pathway__media">
-                <img
-                  src={img(shots.sunsetRoad, 900, 620)}
-                  alt="Une route de campagne marocaine au coucher du soleil"
-                  loading="lazy"
-                />
-                <span className="pathway__idx">A</span>
-              </div>
-              <div className="pathway__body">
-                <h3 className="h3">Particuliers &amp; touristes</h3>
-                <p className="body-muted">
-                  Choisissez vos dates et votre ville, comparez les véhicules réellement
-                  disponibles, ajoutez vos options et envoyez votre demande. Prix
-                  affichés, kilométrage inclus, caution connue à l’avance.
-                </p>
-                <ul className="ticklist">
-                  <li>Tarifs publics, à la journée</li>
-                  <li>Disponibilité en temps réel</li>
-                  <li>Livraison hôtel, riad ou aéroport</li>
-                </ul>
-                <Link to="/flotte" className="textlink">
-                  Voir la flotte <Arrow />
-                </Link>
-              </div>
-            </Reveal>
-
-            <Reveal className="pathway pathway--ink" delay={90}>
-              <div className="pathway__media">
-                <img
-                  src={img(shots.washFoamHand, 900, 620)}
-                  alt="Un opérateur lave une carrosserie couverte de mousse"
-                  loading="lazy"
-                />
-                <span className="pathway__idx">B</span>
-              </div>
-              <div className="pathway__body">
-                <h3 className="h3">Professionnels — Car Wash</h3>
-                <p className="body-muted">
-                  Des véhicules aménagés pour le lavage automobile mobile. Aucun prix
-                  n’est affiché : il dépend du nombre de véhicules, de la durée, de la
-                  zone, des équipements et des services inclus.
-                </p>
-                <ul className="ticklist ticklist--ink">
-                  <li>Devis personnalisé sous 48 h</li>
-                  <li>Entretien et remplacement inclus</li>
-                  <li>Formation des opérateurs sur site</li>
-                </ul>
-                <Link to="/professionnel" className="textlink">
-                  Demander un devis <Arrow />
-                </Link>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- FLEET PREVIEW --------------------------------------- */}
-      <section className="sec--2" style={{ paddingBottom: 'var(--s-4)' }}>
-        <div className="shell">
-          <SectionHead
-            index="02"
-            eyebrow="Notre flotte"
-            title="Quatre véhicules sur soixante-deux."
+            eyebrow="Par catégorie"
+            title="Choisissez votre catégorie."
             meta="De la citadine à 280 DH la journée au 4x4 sept places préparé pour le désert."
             action={
               <Link to="/flotte" className="textlink" style={{ marginTop: 18 }}>
-                Toute la flotte <Arrow />
+                Toutes les catégories <Arrow />
               </Link>
             }
           />
-          {preview.length > 0 && (
-            <div className="fleet-grid">
-              {preview.map((v) => (
-                <VehicleCard key={v.id} vehicle={v} />
+
+          {categories.length > 0 && (
+            <div className="catgrid">
+              {categories.map((c, i) => (
+                <Reveal key={c.name} delay={i * 60}>
+                  <Link
+                    to={`/flotte?category=${encodeURIComponent(c.name)}`}
+                    className="catcard"
+                    aria-label={`Voir les véhicules de catégorie ${c.name}`}
+                  >
+                    <img src={img(c.image, 640, 760)} alt="" loading="lazy" />
+                    <span className="catcard__veil" />
+                    <span className="catcard__label">{c.name}</span>
+                    <span className="catcard__meta">
+                      {c.count} modèle{c.count > 1 ? 's' : ''}
+                      <span>Dès {formatDH(c.from)} / jour</span>
+                    </span>
+                    <span className="catcard__go">
+                      <Arrow />
+                    </span>
+                  </Link>
+                </Reveal>
               ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* ---------- EDITORIAL SPLIT — bleed right ----------------------- */}
-      <section className="sec--1" style={{ paddingBottom: 'var(--s-3)' }}>
+      {/* ---------- 02 · POPULAR VEHICLES ------------------------------- */}
+      <section className="sec--2" style={{ paddingBottom: 'var(--s-3)' }}>
+        <div className="shell">
+          <SectionHead
+            index="02"
+            eyebrow="Les plus demandés"
+            title="Véhicules populaires."
+            meta="Prix à la journée, kilométrage inclus et caution connus avant la réservation."
+            action={
+              <Link to="/flotte" className="textlink" style={{ marginTop: 18 }}>
+                Tous les véhicules <Arrow />
+              </Link>
+            }
+          />
+
+          {preview.length > 0 && (
+            <div className="fleet-grid">
+              {preview.map((v) => (
+                <VehicleCard key={v.id} vehicle={v} cta />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ---------- TRUST BAND ------------------------------------------ */}
+      <section className="ink-block" style={{ paddingBlock: 'var(--s-1)' }}>
+        <div className="shell">
+          <div className="trustband">
+            {trustPoints.map((t) => {
+              const Icon = TRUST_ICONS[t.icon]
+              return (
+                <div className="trustband__cell" key={t.title}>
+                  <span className="trustband__icon">
+                    <Icon size={20} />
+                  </span>
+                  <div>
+                    <p className="trustband__title">{t.title}</p>
+                    <p className="trustband__note">{t.note}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------- 03 · EDITORIAL SPLIT — bleed right ------------------ */}
+      <section className="sec--lopsided-alt">
         <div className="shell">
           <div className="split">
             <div className="split__body">
@@ -267,34 +299,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- GUARANTEES (ink) ------------------------------------ */}
-      <section className="ink-block sec--lopsided-alt">
+      {/* ---------- 04 · HOW IT WORKS ----------------------------------- */}
+      <section className="sec--2" style={{ paddingBottom: 'var(--s-4)' }}>
         <div className="shell">
           <SectionHead
             index="04"
-            eyebrow="Nos engagements"
-            title="Quatre garanties, écrites."
-            meta="Elles figurent au contrat. Si nous ne les tenons pas, vous ne payez pas la journée concernée."
-          />
-          <div className="steps">
-            {guarantees.map((g) => (
-              <Reveal className="step" key={g.n} delay={Number(g.n) * 60}>
-                <span className="step__n">{g.n}</span>
-                <h3>{g.title}</h3>
-                <p>{g.body}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ---------- HOW IT WORKS ---------------------------------------- */}
-      <section className="sec">
-        <div className="shell">
-          <SectionHead
-            index="05"
             eyebrow="Comment ça marche"
-            title="Quatre étapes, une validation humaine."
+            title="Réservez en toute simplicité."
             meta="Une demande envoyée n’est pas encore une réservation. Nos équipes vérifient la disponibilité réelle avant de confirmer."
           />
           <div className="steps">
@@ -309,47 +320,40 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- ZONES — bleed left ---------------------------------- */}
-      <section className="sec--2" style={{ paddingBottom: 'var(--s-4)' }}>
+      {/* ---------- 05 · PROFESSIONALS ---------------------------------- */}
+      <section className="ink-block sec--lopsided">
         <div className="shell">
-          <div className="split split--textRight">
-            <figure className="split__media split__media--bleedLeft">
-              <img
-                src={img(shots.roadGate, 1200, 930)}
-                alt="Route rectiligne vers une porte monumentale, montagnes en arrière-plan"
-                loading="lazy"
-              />
-              <figcaption className="split__caption">
-                Drâa-Tafilalet — livraison sur rendez-vous
-              </figcaption>
-            </figure>
-
-            <div className="split__body">
-              <p className="eyebrow" style={{ marginBottom: 18 }}>
-                <span className="index-mark">06</span>&nbsp;&nbsp;Zones de livraison
+          <div className="propitch">
+            <div className="propitch__body">
+              <p className="eyebrow" style={{ display: 'flex', gap: 14, alignItems: 'baseline' }}>
+                <span className="index-mark">05</span>
+                {proPitch.eyebrow}
               </p>
-              <h2 className="h2" style={{ marginBottom: 26 }}>
-                Huit villes. Et tout ce qu’il y a entre.
-              </h2>
-              <ul className="minizones">
-                {zones.slice(0, 5).map((z) => (
-                  <li key={z.city}>
-                    <span>{z.city}</span>
-                    <span className="mono-note">{z.delay}</span>
-                    <span className="mono-note">{z.fee}</span>
-                  </li>
+              <h2 className="h2 propitch__title">{proPitch.title}</h2>
+              <p className="body-muted" style={{ marginBottom: 26 }}>
+                {proPitch.body}
+              </p>
+              <ul className="ticklist ticklist--ink" style={{ marginBottom: 32 }}>
+                {proPitch.points.map((p) => (
+                  <li key={p}>{p}</li>
                 ))}
               </ul>
-              <Link to="/zones" className="textlink" style={{ marginTop: 28 }}>
-                Toutes les zones et délais <Arrow />
+              <Link to="/professionnel" className="btn btn--accent">
+                Demander un devis <Arrow />
               </Link>
             </div>
+
+            <figure className="propitch__media">
+              <img
+                src={img(shots.vanNight, 1200, 900)}
+                alt="Un utilitaire de lavage aménagé, stationné de nuit"
+                loading="lazy"
+              />
+              <figcaption className="propitch__tag">Véhicules Car Wash</figcaption>
+            </figure>
           </div>
         </div>
       </section>
-
-      {/* ---------- TESTIMONIALS ---------------------------------------- */}
-      <Testimonials />
 
       {/* ---------- FINAL CTA ------------------------------------------- */}
       <section className="accent-block sec--2">
@@ -364,8 +368,8 @@ export default function Home() {
               <Link to="/flotte" className="btn btn--onInk">
                 Louer une voiture <Arrow />
               </Link>
-              <Link to="/professionnel" className="btn btn--onInk">
-                Louer un véhicule Car Wash <Arrow />
+              <Link to="/zones" className="btn btn--onInk" style={{ marginLeft: -1 }}>
+                Nos zones de livraison <Arrow />
               </Link>
               <p className="mono-note" style={{ color: 'rgba(252,252,253,.72)' }}>
                 Ou appelez-nous : {company.phone}

@@ -126,6 +126,31 @@ export const guarantees = [
   },
 ]
 
+/** The reassurance band on the home page — four claims, three words each.
+ *  Each one is expanded in `guarantees` on the À propos page. */
+export const trustPoints = [
+  { icon: 'shield', title: 'Véhicules contrôlés', note: 'Contrôle en 42 points avant chaque départ' },
+  { icon: 'headset', title: 'Assistance 24h/24', note: 'Un numéro unique, partout au Maroc' },
+  { icon: 'tag', title: 'Tarifs transparents', note: 'Kilométrage et caution écrits à l’avance' },
+  { icon: 'truck', title: 'Livraison sur rendez-vous', note: 'Aéroport, hôtel, riad ou domicile' },
+]
+
+/** The professional pitch as it appears on the home page — the short version
+ *  of /professionnel, kept to three promises and one call to action. */
+export const proPitch = {
+  eyebrow: 'Pour les professionnels',
+  title: 'Des véhicules prêts pour votre activité.',
+  body:
+    'Une solution clé en main pour les entreprises du lavage automobile mobile : ' +
+    'véhicules équipés, entretien régulier et livraison sur votre site. Aucun prix ' +
+    'n’est affiché — chaque dossier est chiffré individuellement.',
+  points: [
+    'Équipements adaptés à votre métier',
+    'Entretien et remplacement à notre charge',
+    'Livraison sur votre site ou en agence',
+  ],
+}
+
 export const proAdvantages = [
   {
     n: '01',

@@ -28,16 +28,36 @@ export function createApp() {
   app.use(express.urlencoded({ extended: true }))
   app.use(morgan(isProd ? 'combined' : 'dev'))
 
-  app.use(
-    cors({
-      origin(origin, cb) {
-        // Same-origin and tooling requests arrive without an Origin header.
-        if (!origin || env.corsOrigins.includes(origin)) return cb(null, true)
-        cb(new Error(`Origin non autorisée : ${origin}`))
-      },
-      credentials: true,
-    })
-  )
+  /*
+   * CORS applies to the API only.
+   *
+   * Two things this has to get right, both learned the hard way once the app
+   * started serving its own front end:
+   *
+   *  - Vite marks its module script and stylesheet `crossorigin`, so the
+   *    browser sends an Origin header even for same-origin asset requests.
+   *    Gating static files on the allowlist meant every asset 500'd and the
+   *    page loaded with no CSS and no JS.
+   *  - A disallowed origin is not a server error. Throwing from the callback
+   *    turns it into a 500; the correct response is simply to omit the CORS
+   *    headers and let the browser enforce its own policy.
+   */
+  const corsMiddleware = cors((req, cb) => {
+    const origin = req.headers.origin
+    if (!origin) return cb(null, { origin: true, credentials: true })
+
+    let sameOrigin = false
+    try {
+      sameOrigin = new URL(origin).host === req.headers.host
+    } catch {
+      /* malformed Origin header — treat as cross-origin */
+    }
+
+    const allowed = sameOrigin || env.corsOrigins.includes(origin)
+    cb(null, { origin: allowed, credentials: true })
+  })
+
+  app.use('/api', corsMiddleware)
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, env: env.nodeEnv, time: new Date().toISOString() })

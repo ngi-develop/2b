@@ -122,3 +122,32 @@ export function Shield({ size = 16 }) {
     </svg>
   )
 }
+
+export function Headset({ size = 16 }) {
+  return (
+    <svg viewBox="0 0 18 18" width={size} height={size} {...base}>
+      <path d="M2 11V9a7 7 0 0114 0v2" />
+      <path d="M1 11h3v5H2a1 1 0 01-1-1zM14 11h3v4a1 1 0 01-1 1h-2z" />
+      <path d="M17 15v1a2 2 0 01-2 2H9" />
+    </svg>
+  )
+}
+
+export function Tag({ size = 16 }) {
+  return (
+    <svg viewBox="0 0 18 18" width={size} height={size} {...base}>
+      <path d="M1 1h7.5L17 9.5 9.5 17 1 8.5z" />
+      <path d="M5 5h.01" />
+    </svg>
+  )
+}
+
+export function Truck({ size = 16 }) {
+  return (
+    <svg viewBox="0 0 20 16" width={size} height={size} {...base}>
+      <path d="M1 1h11v10H1zM12 4h3.5L19 7.5V11h-7z" />
+      <circle cx="5" cy="13" r="1.8" />
+      <circle cx="15" cy="13" r="1.8" />
+    </svg>
+  )
+}
