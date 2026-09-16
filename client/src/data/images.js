@@ -5,13 +5,29 @@
  * committed here. `img()` builds a sized, cropped delivery URL so cards and
  * hero frames never download a 3000px original.
  *
- * When the Express/Mongo backend lands, vehicle photos come from the fleet
- * documents instead and only the editorial shots below stay hard-coded.
+ * Vehicle photos now come from the fleet documents, which hold either an
+ * Unsplash id (seeded catalogue) or a /uploads/... path written by the
+ * dashboard's uploader. `img()` accepts all three and only rewrites the ids.
  */
 
 const BASE = 'https://images.unsplash.com/'
 
+/** True for anything already addressable as-is: an upload, an absolute URL,
+    a data: URI or a blob: preview. */
+function isDirectUrl(value) {
+  return (
+    value.startsWith('/') ||
+    value.startsWith('http://') ||
+    value.startsWith('https://') ||
+    value.startsWith('data:') ||
+    value.startsWith('blob:')
+  )
+}
+
 export function img(id, w = 1200, h) {
+  if (!id) return ''
+  if (isDirectUrl(id)) return id
+
   const params = new URLSearchParams({
     auto: 'format',
     fit: 'crop',

@@ -55,17 +55,24 @@ until something rebuilds it. That is what this section is for.
 ```bash
 cp .env.example .env          # set JWT_SECRET and SEED_ADMIN_PASSWORD
 docker compose up -d --build
-docker compose exec app npm run seed:catalogue   # first deploy
 ```
 
-`seed:catalogue` creates the administrator, the settings **and the fleet** —
-the catalogue the public site sells. It invents no clients, no reservations
-and no accounting entries, and it is safe to re-run: if vehicles already
-exist it does nothing.
+That is the whole first deploy. On start-up the server creates the
+administrator, the settings **and the fleet** — the catalogue the public site
+sells — if they are not already there. It invents no clients, no reservations
+and no accounting entries, and every later boot finds the catalogue present
+and does nothing.
+
+Set `AUTO_SEED=0` if you would rather do it by hand, then run
+`docker compose exec app npm run seed:catalogue` once.
 
 Do not use `npm run seed -- --keep` to stand a site up. It stops after the
 admin and settings, so the database has no vehicles and the home page shows
 no cars at all.
+
+Log in at `/dashboard` with `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`, change
+that password, and create the rest of the team from Réglages — in production
+the seed creates the administrator and nobody else.
 
 The site is then on `http://<host>:8080` (`APP_PORT` in `.env`). One image
 builds the front end and serves it from the API on a single origin, so there
@@ -81,7 +88,8 @@ git pull && docker compose up -d --build
 **`--build` is the important part.** Without it Docker reuses the existing
 image, the front end is never rebuilt, and the site does not change.
 
-Seeding is not part of a redeploy — the database persists in its own volume.
+Seeding is not part of a redeploy — the database persists in its own volume,
+and so do uploaded files.
 
 | command | creates |
 |---|---|
@@ -112,6 +120,31 @@ keep it up.
   real rebuild always produces new URLs; if the HTML still references the old
   hashes, the image was not rebuilt.
 
+### Uploaded files
+
+Vehicle photos, client documents and cahiers des charges are written to
+`/app/uploads` inside the container, mounted from the `uploads-data` volume.
+They are the only state that is **not** in MongoDB, so a backup that covers
+the database alone restores records pointing at files that are gone.
+
+```bash
+# back up both, together
+docker compose exec -T mongo mongodump --archive --db=2b_location > 2b-db.archive
+docker run --rm -v 2b_uploads-data:/from -v "$PWD":/to alpine tar czf /to/2b-uploads.tar.gz -C /from .
+```
+
+`MAX_UPLOAD_MB` (default 8) caps a single file. Accepted types are JPEG, PNG,
+WebP, AVIF and PDF — nothing else reaches the disk, and stored filenames are
+random hex chosen by the server, never the name the browser sent.
+
+The public quote form is the one place an unauthenticated visitor can write a
+file. It is rate-limited per IP, and once a day the server deletes stored
+files older than 24 hours that no record references, so a form someone
+abandoned does not accumulate.
+
+Swapping to S3 or a similar store means replacing `server/src/services/
+storage.js` — nothing else knows where the bytes live.
+
 ### If the home page shows no cars
 
 `curl https://<host>/api/vehicles` — an empty `[]` means the database has no
@@ -128,7 +161,7 @@ database shows a shorter page rather than headings over empty space.
 
 ```bash
 cd server
-npm run test:api      # 76 end-to-end API assertions against a throwaway DB
+npm run test:api      # 96 end-to-end API assertions against a throwaway DB
 node scripts/check-seed.js   # the seeded data has to describe a real business
 ```
 
@@ -197,9 +230,9 @@ thing that computes a total, and it runs on every save.
 ```
 server/src/
   models/        Mongoose schemas + the shared vocabulary (constants.js)
-  services/      availability, pricing/metrics, reference numbers
+  services/      availability, pricing/metrics, reference numbers, file storage
   routes/        one router per module
-  middleware/    auth (JWT + roles), zod validation, error shaping
+  middleware/    auth (JWT + roles), zod validation, error shaping, uploads
   seed/          a realistic six-month operating history
 
 client/src/
@@ -235,8 +268,10 @@ for headings, Switzer for body.
 ## Connecting a real deployment
 
 `NODE_ENV=production` refuses to boot without `JWT_SECRET` and `MONGODB_URI`,
-and `npm run seed` refuses to wipe a production database (use `-- --keep`,
-which only ensures the admin and settings exist).
+and `npm run seed` refuses to wipe a production database (use `--catalogue`,
+which tops up the fleet, or `--keep`, which only ensures the admin and
+settings exist). Uploaded files live on their own volume — see **Uploaded
+files** above before setting up backups.
 
 ### Managing the fleet
 
@@ -250,9 +285,14 @@ A vehicle marked *Tourisme* and *publié* appears in the public catalogue
 immediately. A *Car Wash* vehicle never does, whatever its publication flag
 says.
 
-Photos are Unsplash identifiers for now (`photo-1629005559534-…`), pasted into
-the form. Uploading real files needs the storage layer below.
+Photos are uploaded from the form: a main photo and a gallery of up to eight.
+Replacing or removing one deletes the old file once the vehicle saves, so an
+abandoned edit never destroys the live photo. Seeded vehicles still carry
+Unsplash identifiers, and `img()` serves both without caring which it has.
 
-Not yet built: file upload for documents and photos (the fields and URLs
-exist, the storage does not), e-mail/WhatsApp notifications, and PDF contract
-and invoice generation from the templates in Paramètres.
+Client documents (CIN, passeport, permis) attach the same way from the client
+file, and professionals can attach a cahier des charges to a Car Wash enquiry
+from the public form.
+
+Not yet built: e-mail/WhatsApp notifications, and PDF contract and invoice
+generation from the templates in Paramètres.

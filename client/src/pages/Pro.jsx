@@ -5,7 +5,7 @@ import SectionHead from '../components/SectionHead.jsx'
 import Reveal from '../components/Reveal.jsx'
 import { Arrow, Check, Doc } from '../components/Icons.jsx'
 import { TextField, SelectField, TextArea, RadioGroup, CheckGroup } from '../components/Field.jsx'
-import { submitQuoteRequest } from '../api/client.js'
+import { submitQuoteRequest, uploadQuoteAttachment } from '../api/client.js'
 import { img, shots } from '../data/images.js'
 import { proAdvantages, proSteps, company } from '../data/site.js'
 
@@ -54,12 +54,35 @@ export default function Pro() {
     message: '',
   })
   const [products, setProducts] = useState([PRODUCTS[0]])
-  const [fileName, setFileName] = useState('')
+  /* The document is uploaded the moment it is chosen, not on submit: the
+     enquiry then carries a URL, and a file that is too large or of the wrong
+     type is reported here rather than after a filled-in form is sent. */
+  const [attachment, setAttachment] = useState(null)
+  const [fileBusy, setFileBusy] = useState(false)
+  const [fileError, setFileError] = useState('')
   const [errors, setErrors] = useState({})
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState(null)
 
   const set = (name, value) => setForm((f) => ({ ...f, [name]: value }))
+
+  async function onFile(event) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setFileBusy(true)
+    setFileError('')
+    try {
+      const { url, name } = await uploadQuoteAttachment(file)
+      setAttachment({ url, name })
+    } catch (err) {
+      setFileError(err.message || 'Envoi impossible.')
+      setAttachment(null)
+    } finally {
+      setFileBusy(false)
+    }
+  }
 
   const toggleProduct = (p) =>
     setProducts((prev) => (prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]))
@@ -89,7 +112,8 @@ export default function Pro() {
       // an empty date input is an empty string, which is not a date
       startDate: form.startDate || undefined,
       products,
-      attachmentName: fileName || undefined,
+      attachmentName: attachment?.name || undefined,
+      attachmentUrl: attachment?.url || undefined,
     })
     setSending(false)
     setResult(res)
@@ -444,8 +468,9 @@ export default function Pro() {
                   <input
                     id="brief"
                     type="file"
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
-                    onChange={(e) => setFileName(e.target.files?.[0]?.name || '')}
+                    accept="application/pdf,image/jpeg,image/png,image/webp"
+                    onChange={onFile}
+                    disabled={fileBusy}
                   />
                   <span
                     style={{
@@ -456,9 +481,24 @@ export default function Pro() {
                     }}
                   >
                     <Doc />
-                    {fileName || 'Joindre un document — PDF, Word, Excel ou image'}
+                    {fileBusy
+                      ? 'Envoi en cours…'
+                      : attachment?.name || 'Joindre un document — PDF ou image'}
                   </span>
                 </label>
+                {attachment && !fileBusy && (
+                  <p className="filedrop__note">
+                    Document reçu.{' '}
+                    <button
+                      type="button"
+                      className="filedrop__remove"
+                      onClick={() => setAttachment(null)}
+                    >
+                      Retirer
+                    </button>
+                  </p>
+                )}
+                {fileError && <p className="field__err" style={{ marginTop: 10, display: 'block' }}>{fileError}</p>}
               </div>
             </div>
 

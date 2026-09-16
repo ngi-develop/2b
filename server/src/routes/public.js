@@ -9,6 +9,9 @@ import { asyncHandler, ApiError } from '../middleware/error.js'
 import { validate } from '../middleware/validate.js'
 import { busyVehicleIds, isVehicleFree } from '../services/availability.js'
 import { nextQuoteReference, nextReservationReference } from '../services/references.js'
+import { handleUpload, uploadSingle } from '../middleware/upload.js'
+import { publicUrl } from '../services/storage.js'
+import { rateLimit } from '../middleware/rateLimit.js'
 
 const router = Router()
 
@@ -220,6 +223,7 @@ const quoteSchema = z.object({
   training: z.string().optional(),
   message: z.string().max(4000).optional(),
   attachmentName: z.string().optional(),
+  attachmentUrl: z.string().optional(),
 })
 
 router.post(
@@ -238,6 +242,31 @@ router.post(
       ok: true,
       reference: quote.reference,
       status: 'en cours d’analyse',
+    })
+  })
+)
+
+/**
+ * The one unauthenticated upload: a professional attaching a cahier des
+ * charges to a quote request, which the brief asks for by name.
+ *
+ * Rate-limited per IP because it writes to disk without a login. The type
+ * allowlist and size cap come from the shared upload middleware.
+ */
+router.post(
+  '/quote-attachments',
+  rateLimit({
+    windowMs: 10 * 60 * 1000,
+    max: 10,
+    message: 'Trop d’envois de fichiers. Réessayez dans quelques minutes.',
+  }),
+  handleUpload(uploadSingle),
+  asyncHandler(async (req, res) => {
+    if (!req.file) throw new ApiError(400, 'Aucun fichier reçu.')
+    res.status(201).json({
+      url: publicUrl(req.file.filename),
+      name: req.file.originalname,
+      size: req.file.size,
     })
   })
 )

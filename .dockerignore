@@ -5,6 +5,9 @@
 **/dist
 **/build
 
+# local uploads — user files belong on the volume, not baked into the image
+**/uploads
+
 # secrets
 .env
 **/.env

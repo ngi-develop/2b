@@ -12,7 +12,29 @@ async function main() {
   if (isMemoryDB()) {
     const { seedDatabase } = await import('./seed/seed.js')
     await seedDatabase()
+  } else if (env.autoSeed) {
+    /* First boot against a real database: create the administrator, the
+       settings document and the catalogue if they are not there yet.
+       --catalogue mode is idempotent and never touches clients, reservations
+       or accounting, so this is safe to run on every start — and it means a
+       fresh deployment comes up with a site that has cars on it instead of an
+       empty one waiting for someone to remember the seed command. */
+    const { seedDatabase } = await import('./seed/seed.js')
+    try {
+      const result = await seedDatabase({ catalogueOnly: true })
+      if (result.unchanged) console.log('[api] catalogue already present — nothing seeded')
+      else console.log(`[api] catalogue seeded (${result.vehicles} véhicules)`)
+    } catch (err) {
+      /* A seed failure must not stop an otherwise healthy API from serving. */
+      console.error('[api] bootstrap seed failed:', err.message)
+    }
   }
+
+  /* Housekeeping for the file store. The public quote form can write bytes
+     without a login, so unattached files are swept once a day — see
+     services/sweepUploads.js for why the grace period matters. */
+  const { startUploadSweeper } = await import('./services/sweepUploads.js')
+  startUploadSweeper()
 
   const app = createApp()
   const server = app.listen(env.port, () => {

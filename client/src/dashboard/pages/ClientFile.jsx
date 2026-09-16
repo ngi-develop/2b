@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { PageBar } from '../DashboardLayout.jsx'
 import { useAuth } from '../AuthContext.jsx'
@@ -19,6 +19,13 @@ const STATUS_LABELS = {
 
 const NEEDS_REASON = ['a_surveiller', 'blackliste']
 
+const DOC_KINDS = {
+  cin: 'CIN',
+  passeport: 'Passeport',
+  permis: 'Permis de conduire',
+  autre: 'Autre pièce',
+}
+
 /** Fiche client: identité, documents, historique, synthèse, notes internes. */
 export default function ClientFile() {
   const { id } = useParams()
@@ -29,6 +36,44 @@ export default function ClientFile() {
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
   const [actionError, setActionError] = useState('')
+
+  const fileInput = useRef(null)
+  const [docKind, setDocKind] = useState('cin')
+  const [docBusy, setDocBusy] = useState(false)
+
+  /* Two steps on purpose: the bytes go up first and come back as a URL, which
+     is then attached to the client. If the attach fails the file is orphaned,
+     which is the harmless way round. */
+  async function addDocument(event) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    setDocBusy(true)
+    setActionError('')
+    try {
+      const { url, name } = await api.uploadFile(file)
+      await api.addClientDocument(id, { kind: docKind, label: name, url })
+      reload()
+    } catch (err) {
+      setActionError(err.message)
+    } finally {
+      setDocBusy(false)
+    }
+  }
+
+  async function removeDocument(docId) {
+    setDocBusy(true)
+    setActionError('')
+    try {
+      await api.deleteClientDocument(id, docId)
+      reload()
+    } catch (err) {
+      setActionError(err.message)
+    } finally {
+      setDocBusy(false)
+    }
+  }
 
   async function addNote() {
     if (!note.trim()) return
@@ -185,16 +230,69 @@ export default function ClientFile() {
 
             <Panel title="Documents" sub={`${c.documents?.length || 0}`}>
               {c.documents?.length ? (
-                <dl className="drows">
+                <ul className="docs">
                   {c.documents.map((d) => (
-                    <Row key={d._id} k={d.label || d.kind} v={d.expiresAt ? `exp. ${date(d.expiresAt)}` : '—'} />
+                    <li key={d._id} className="docs__row">
+                      <a
+                        className="docs__link"
+                        href={d.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <strong>{DOC_KINDS[d.kind] || d.kind}</strong>
+                        <span>{d.label || 'Fichier'}</span>
+                      </a>
+                      <span className="docs__meta">
+                        {d.expiresAt ? `exp. ${date(d.expiresAt)}` : ''}
+                      </span>
+                      {isManager && (
+                        <button
+                          type="button"
+                          className="docs__x"
+                          aria-label="Supprimer ce document"
+                          onClick={() => removeDocument(d._id)}
+                          disabled={docBusy}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </li>
                   ))}
-                </dl>
+                </ul>
               ) : (
                 <p className="table__muted" style={{ fontSize: '0.8125rem' }}>
                   Aucun document enregistré (CIN, passeport, permis).
                 </p>
               )}
+
+              <div className="docs__add">
+                <select
+                  value={docKind}
+                  onChange={(e) => setDocKind(e.target.value)}
+                  aria-label="Type de document"
+                >
+                  {Object.entries(DOC_KINDS).map(([k, label]) => (
+                    <option key={k} value={k}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="dbtn dbtn--sm"
+                  onClick={() => fileInput.current?.click()}
+                  disabled={docBusy}
+                >
+                  {docBusy ? 'Envoi…' : 'Joindre'}
+                </button>
+                <input
+                  ref={fileInput}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/avif,application/pdf"
+                  hidden
+                  onChange={addDocument}
+                />
+              </div>
             </Panel>
 
             <Panel title="Fiche">

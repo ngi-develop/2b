@@ -34,7 +34,12 @@ ENV NODE_ENV=production
 ENV PORT=5000
 
 # Run as the image's existing unprivileged user rather than root.
-RUN mkdir -p /app/server /app/client && chown -R node:node /app
+# /app/uploads is where user files land; mount a volume over it in compose so
+# they survive a rebuild. Created here so the directory exists and is writable
+# even when no volume is mounted.
+RUN mkdir -p /app/server /app/client /app/uploads && chown -R node:node /app
+
+ENV UPLOAD_DIR=/app/uploads
 
 COPY --chown=node:node --from=deps  /build/server/node_modules ./server/node_modules
 COPY --chown=node:node server/package.json                     ./server/package.json

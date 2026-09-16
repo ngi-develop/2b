@@ -733,6 +733,21 @@ input[type='range']::-moz-range-thumb {
 .filedrop input {
   display: none;
 }
+.filedrop__note {
+  margin-top: 10px;
+  font-size: 0.8125rem;
+  color: var(--ink-70);
+}
+.filedrop__remove {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent-on);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
 
 .form-foot {
   display: flex;

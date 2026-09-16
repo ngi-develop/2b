@@ -7,6 +7,7 @@ import { CLIENT_STATUS, CLIENT_STATUS_NEEDING_REASON } from '../models/constants
 import { requireAuth, requireRole } from '../middleware/auth.js'
 import { asyncHandler, ApiError } from '../middleware/error.js'
 import { validate } from '../middleware/validate.js'
+import { removeFile } from '../services/storage.js'
 
 const router = Router()
 router.use(requireAuth)
@@ -226,6 +227,74 @@ router.patch(
     }
 
     res.json({ ...client.toJSON(), id: String(client._id) })
+  })
+)
+
+/* ------------------------------------------------------------- documents -- */
+
+/**
+ * Pièces jointes du dossier client — CIN, passeport, permis.
+ *
+ * The bytes are uploaded first through /api/uploads, which returns a URL;
+ * this only attaches that URL to the client. Keeping the two apart means a
+ * failed attach leaves an orphaned file rather than a client row pointing at
+ * nothing.
+ */
+const documentSchema = z.object({
+  kind: z.enum(['cin', 'passeport', 'permis', 'autre']).default('autre'),
+  label: z.string().trim().optional(),
+  url: z.string().trim().min(1, 'Fichier manquant'),
+  expiresAt: z.coerce.date().optional(),
+})
+
+router.post(
+  '/:id/documents',
+  validate(documentSchema),
+  asyncHandler(async (req, res) => {
+    const client = await Client.findById(req.params.id)
+    if (!client) throw new ApiError(404, 'Client introuvable.')
+
+    client.documents.push(req.body)
+    await client.save()
+
+    await recordAudit({
+      user: req.user._id,
+      action: 'client.document.add',
+      entity: 'Client',
+      entityId: String(client._id),
+      summary: `Document ajouté (${req.body.kind}) : ${client.firstName} ${client.lastName}`,
+    })
+
+    res.status(201).json({ ok: true, documents: client.documents })
+  })
+)
+
+router.delete(
+  '/:id/documents/:docId',
+  asyncHandler(async (req, res) => {
+    const client = await Client.findById(req.params.id)
+    if (!client) throw new ApiError(404, 'Client introuvable.')
+
+    const doc = client.documents.id(req.params.docId)
+    if (!doc) throw new ApiError(404, 'Document introuvable.')
+
+    const { url } = doc
+    doc.deleteOne()
+    await client.save()
+
+    /* Detach first, then delete the bytes: if the unlink fails the record is
+       already gone, which is the harmless direction to fail in. */
+    await removeFile(url)
+
+    await recordAudit({
+      user: req.user._id,
+      action: 'client.document.delete',
+      entity: 'Client',
+      entityId: String(client._id),
+      summary: `Document supprimé : ${client.firstName} ${client.lastName}`,
+    })
+
+    res.json({ ok: true, documents: client.documents })
   })
 )
 

@@ -5,7 +5,7 @@ import { request, qs } from './http.js'
 const get = (path) => request(path, { auth: true })
 const post = (path, body) => request(path, { method: 'POST', body, auth: true })
 const patch = (path, body) => request(path, { method: 'PATCH', body, auth: true })
-const del = (path) => request(path, { method: 'DELETE', auth: true })
+const del = (path, body) => request(path, { method: 'DELETE', body, auth: true })
 
 /* ----------------------------------------------------------------- auth -- */
 
@@ -58,6 +58,8 @@ export const getClient = (id) => get(`/clients/${id}`)
 export const createClient = (body) => post('/clients', body)
 export const updateClient = (id, body) => patch(`/clients/${id}`, body)
 export const addClientNote = (id, body) => post(`/clients/${id}/notes`, { body })
+export const addClientDocument = (id, body) => post(`/clients/${id}/documents`, body)
+export const deleteClientDocument = (id, docId) => del(`/clients/${id}/documents/${docId}`)
 
 /* -------------------------------------------------------------- finance -- */
 
@@ -97,3 +99,25 @@ export const listUsers = () => get('/users')
 export const createUser = (body) => post('/users', body)
 export const updateUser = (id, body) => patch(`/users/${id}`, body)
 export const deactivateUser = (id) => del(`/users/${id}`)
+
+/* -------------------------------------------------------------- uploads -- */
+
+/**
+ * File storage. The bytes go up on their own and come back as a URL, which
+ * the caller then saves onto whatever record needed them. Nothing here knows
+ * where the files actually live — that is the server's storage service.
+ */
+export function uploadFile(file) {
+  const form = new FormData()
+  form.append('file', file)
+  return request('/uploads', { method: 'POST', body: form, auth: true })
+}
+
+export function uploadFiles(files) {
+  const form = new FormData()
+  for (const file of files) form.append('files', file)
+  return request('/uploads/batch', { method: 'POST', body: form, auth: true })
+}
+
+/** Deletes the stored bytes. Detach the URL from its record first. */
+export const deleteUpload = (url) => del('/uploads', { url })

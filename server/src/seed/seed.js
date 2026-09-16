@@ -103,10 +103,15 @@ export async function seedDatabase({ keepOnly = false, catalogueOnly = false } =
     await admin.save()
   }
 
-  const staffSpec = [
-    ['Nadia', 'Cherkaoui', 'nadia@2blocation.ma', 'manager'],
-    ['Yassine', 'Oubella', 'yassine@2blocation.ma', 'agent'],
-  ]
+  /* Demo colleagues share the seed admin password, which is fine for a demo
+     and not fine on a real deployment — there, the administrator creates the
+     rest of the team from Réglages with passwords of their own. */
+  const staffSpec = isProd
+    ? []
+    : [
+        ['Nadia', 'Cherkaoui', 'nadia@2blocation.ma', 'manager'],
+        ['Yassine', 'Oubella', 'yassine@2blocation.ma', 'agent'],
+      ]
   const staff = [admin]
   for (const [firstName, lastName, email, role] of staffSpec) {
     let u = await User.findOne({ email })

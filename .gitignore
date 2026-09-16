@@ -13,3 +13,7 @@ build/
 # logs & local noise
 *.log
 .DS_Store
+
+# uploaded files — user data, never source
+server/uploads/
+uploads/

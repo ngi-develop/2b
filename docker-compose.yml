@@ -46,9 +46,21 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN:-}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@2blocation.ma}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?set SEED_ADMIN_PASSWORD in .env}
+      # Creates the admin, the settings and the catalogue on first boot.
+      # Idempotent; never touches clients, reservations or accounting.
+      AUTO_SEED: ${AUTO_SEED:-1}
+      # Uploaded photos and client documents.
+      UPLOAD_DIR: /app/uploads
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-8}
+    volumes:
+      # Uploads are the one piece of state outside MongoDB. Back this up
+      # alongside the database, or restoring one without the other leaves
+      # records pointing at files that are gone.
+      - uploads-data:/app/uploads
     ports:
       # Host port is configurable so this can sit behind an existing nginx.
       - '${APP_PORT:-8080}:5000'
 
 volumes:
   mongo-data:
+  uploads-data:

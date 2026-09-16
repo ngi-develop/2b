@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from './AuthContext.jsx'
 import * as api from '../api/dashboard.js'
-import { img } from '../data/images.js'
 import { Banner, Field, Modal, useAsync } from './ui.jsx'
+import { PhotoField, PhotoList } from './Uploader.jsx'
 
 /**
  * Create or edit a vehicle.
@@ -36,7 +36,7 @@ const EMPTY = {
   deposit: 8000,
   published: true,
   image: '',
-  gallery: '',
+  gallery: [],
   cities: [],
   blurb: '',
   highlights: '',
@@ -53,7 +53,7 @@ function toForm(v) {
     ...EMPTY,
     ...v,
     year: v.year ?? '',
-    gallery: (v.gallery || []).join(', '),
+    gallery: v.gallery || [],
     highlights: (v.highlights || []).join(', '),
     cities: v.cities || [],
     statusReason: v.statusReason || '',
@@ -100,13 +100,25 @@ function toPayload(f) {
     deposit: Number(f.deposit || 0),
     published: Boolean(f.published),
     image: f.image?.trim() || undefined,
-    gallery: list(f.gallery),
+    gallery: f.gallery,
     cities: f.cities,
     blurb: f.blurb?.trim() || undefined,
     highlights: list(f.highlights),
     notes: f.notes?.trim() || undefined,
     ...(Object.keys(financing).length ? { financing } : {}),
   }
+}
+
+/**
+ * Files that were attached to the vehicle before this edit and are no longer
+ * referenced after it. Swept only once the save has succeeded, so abandoning
+ * the form leaves the live photos intact. Seeded Unsplash ids are not ours to
+ * delete, hence the /uploads/ test.
+ */
+function orphanedUploads(before, after) {
+  const kept = new Set([after.image, ...(after.gallery || [])].filter(Boolean))
+  return [before?.image, ...(before?.gallery || [])]
+    .filter((url) => url && url.startsWith('/uploads/') && !kept.has(url))
 }
 
 export default function VehicleForm({ vehicle, onClose, onSaved }) {
@@ -143,6 +155,13 @@ export default function VehicleForm({ vehicle, onClose, onSaved }) {
       const saved = editing
         ? await api.updateVehicle(vehicle.id || vehicle._id, payload)
         : await api.createVehicle(payload)
+
+      /* Best-effort clean-up. A failure here leaves an unreferenced file on
+         disk, which is harmless; failing the save over it would not be. */
+      for (const url of orphanedUploads(vehicle, payload)) {
+        api.deleteUpload(url).catch(() => {})
+      }
+
       onSaved(saved)
     } catch (err) {
       setError(err.message)
@@ -280,25 +299,17 @@ export default function VehicleForm({ vehicle, onClose, onSaved }) {
       {/* ---- content ---- */}
       <p className="panel__sub" style={{ margin: '22px 0 10px' }}>Photos et description</p>
       <div className="dgrid dgrid--1">
-        <Field
-          label="Photo principale (identifiant Unsplash)"
-          name="image"
+        <PhotoField
+          label="Photo principale"
           value={form.image}
-          onChange={set}
-          placeholder="photo-1533473359331-0135ef1b58bf"
+          onChange={(url) => set('image', url)}
+          hint="JPEG, PNG, WebP ou AVIF. Format paysage recommandé."
         />
-        {form.image && (
-          <img
-            src={img(form.image, 320, 200)}
-            alt=""
-            style={{ width: 200, height: 125, objectFit: 'cover', background: 'var(--paper-2)' }}
-          />
-        )}
-        <Field
-          label="Galerie (identifiants séparés par des virgules)"
-          name="gallery"
+        <PhotoList
+          label="Galerie"
           value={form.gallery}
-          onChange={set}
+          onChange={(urls) => set('gallery', urls)}
+          hint="Intérieur, coffre, trois-quarts arrière."
         />
         <Field label="Accroche" name="blurb" type="textarea" value={form.blurb} onChange={set} />
         <Field

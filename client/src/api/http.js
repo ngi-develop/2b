@@ -40,8 +40,13 @@ export function setUnauthorizedHandler(fn) {
 }
 
 export async function request(path, { method = 'GET', body, auth = false, signal } = {}) {
+  /* FormData goes through untouched: the browser has to set Content-Type
+     itself so it can append the multipart boundary. Setting it by hand here
+     produces a boundary-less header and the server rejects the body. */
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData
+
   const headers = {}
-  if (body !== undefined) headers['Content-Type'] = 'application/json'
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json'
   if (auth) {
     const token = getToken()
     if (token) headers.Authorization = `Bearer ${token}`
@@ -53,7 +58,7 @@ export async function request(path, { method = 'GET', body, auth = false, signal
       method,
       headers,
       signal,
-      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
+      ...(body !== undefined ? { body: isForm ? body : JSON.stringify(body) } : {}),
     })
   } catch (err) {
     if (err.name === 'AbortError') throw err

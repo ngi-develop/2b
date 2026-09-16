@@ -48,6 +48,19 @@ export function submitReservation(payload) {
   return request('/reservations', { method: 'POST', body: payload })
 }
 
+/**
+ * Cahier des charges attached to a Car Wash enquiry.
+ *
+ * Uploaded before the form is submitted so the enquiry carries a URL rather
+ * than bytes. Rate-limited server-side — this is the only endpoint the public
+ * site can write files through.
+ */
+export function uploadQuoteAttachment(file) {
+  const form = new FormData()
+  form.append('file', file)
+  return request('/quote-attachments', { method: 'POST', body: form })
+}
+
 /** Car Wash enquiry. The response never carries a price. */
 export function submitQuoteRequest(payload) {
   return request('/quote-requests', { method: 'POST', body: payload })

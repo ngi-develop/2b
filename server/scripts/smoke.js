@@ -14,6 +14,8 @@ import { createApp } from '../src/app.js'
 import { connectDB, disconnectDB } from '../src/config/db.js'
 import { seedDatabase } from '../src/seed/seed.js'
 import { env } from '../src/config/env.js'
+import { keyFromUrl } from '../src/services/storage.js'
+import { sweepUploads } from '../src/services/sweepUploads.js'
 
 let passed = 0
 let failed = 0
@@ -468,6 +470,166 @@ async function main() {
 
   const selfDemote = await call('PATCH', `/api/users/${me.body.user.id}`, { role: 'agent' })
   check('an admin cannot demote themselves', selfDemote.status === 400)
+
+  /* ------------------------------------------------------------ uploads -- */
+  section('Stockage de fichiers')
+
+  /* A one-pixel PNG. Real bytes, so the type allowlist is exercised rather
+     than mocked. */
+  const pngBytes = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    'base64'
+  )
+
+  const sendFile = async (path, { bytes, type, name, field = 'file', auth = true }) => {
+    const form = new FormData()
+    form.append(field, new Blob([bytes], { type }), name)
+    const res = await fetch(base + path, {
+      method: 'POST',
+      headers: auth && token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    })
+    let json = null
+    try {
+      json = await res.json()
+    } catch {
+      /* no body */
+    }
+    return { status: res.status, body: json }
+  }
+
+  const noAuthUpload = await fetch(base + '/api/uploads', { method: 'POST' })
+  check('uploading requires a login', noAuthUpload.status === 401)
+
+  const photo = await sendFile('/api/uploads', {
+    bytes: pngBytes,
+    type: 'image/png',
+    name: 'voiture.png',
+  })
+  check('a staff member can upload a photo', photo.status === 201, `status ${photo.status}`)
+  check(
+    'the stored name is generated, not the client’s',
+    /^\/uploads\/[a-f0-9]{32}\.png$/.test(photo.body?.url || ''),
+    photo.body?.url
+  )
+
+  const fetched = await fetch(base + photo.body.url)
+  check('the uploaded file is served back', fetched.status === 200)
+  check(
+    'uploads are served with nosniff',
+    fetched.headers.get('x-content-type-options') === 'nosniff'
+  )
+  check(
+    'uploads are sandboxed by CSP',
+    (fetched.headers.get('content-security-policy') || '').includes("default-src 'none'")
+  )
+
+  const script = await sendFile('/api/uploads', {
+    bytes: Buffer.from('<svg onload="alert(1)"></svg>'),
+    type: 'image/svg+xml',
+    name: 'evil.svg',
+  })
+  check('an SVG is refused', script.status === 415, `status ${script.status}`)
+
+  /* Percent-encoded so the client does not normalise the `..` away before the
+     request is sent — otherwise this tests nothing. Whatever comes back, it
+     must not be the file being reached for. */
+  const traversal = await fetch(`${base}/uploads/%2e%2e%2f%2e%2e%2fpackage.json`)
+  const traversalBody = await traversal.text()
+  check(
+    'path traversal under /uploads does not reach the source tree',
+    !traversalBody.includes('"mongoose"'),
+    `status ${traversal.status}`
+  )
+  check(
+    'the storage layer rejects a key that is not one of ours',
+    keyFromUrl('/uploads/../../package.json') === null &&
+      keyFromUrl('/uploads/evil.php') === null &&
+      keyFromUrl(photo.body.url) !== null
+  )
+
+  const absent = await fetch(base + '/uploads/' + 'a'.repeat(32) + '.png')
+  check('an unknown upload 404s rather than falling through to the SPA', absent.status === 404)
+
+  /* Attaching a photo to a vehicle and reading it back on the public site. */
+  const someVehicle = (await call('GET', '/api/vehicles-admin?limit=1')).body
+  const targetId = (someVehicle.rows || someVehicle)[0]?.id
+  const attached = await call('PATCH', `/api/vehicles-admin/${targetId}`, {
+    image: photo.body.url,
+  })
+  check('a vehicle accepts an uploaded photo URL', attached.status === 200 && attached.body.image === photo.body.url)
+
+  /* The public quote attachment — the only unauthenticated write of bytes. */
+  const brief = await sendFile('/api/quote-attachments', {
+    bytes: Buffer.from('%PDF-1.4 cahier des charges'),
+    type: 'application/pdf',
+    name: 'cahier.pdf',
+    auth: false,
+  })
+  check('a professional can attach a cahier des charges', brief.status === 201, `status ${brief.status}`)
+  check(
+    'the attachment keeps its original name in the response',
+    brief.body?.name === 'cahier.pdf'
+  )
+
+  const withBrief = await call('POST', '/api/quote-requests', {
+    fullName: 'Karim Tazi',
+    city: 'Agadir',
+    phone: '+212600112233',
+    email: 'karim@flotte.ma',
+    vehicleCount: 4,
+    zone: 'Souss-Massa',
+    attachmentName: brief.body.name,
+    attachmentUrl: brief.body.url,
+  })
+  check('the enquiry carries the attachment URL', withBrief.status === 201)
+
+  /* Client documents. */
+  const aClient = (await call('GET', '/api/clients?limit=1')).body
+  const clientId = (aClient.rows || aClient)[0]?.id
+  const doc = await call('POST', `/api/clients/${clientId}/documents`, {
+    kind: 'cin',
+    label: 'CIN recto',
+    url: photo.body.url,
+  })
+  check('a document can be attached to a client', doc.status === 201 && doc.body.documents.length >= 1)
+
+  const docId = doc.body.documents.at(-1)._id
+  const removed = await call('DELETE', `/api/clients/${clientId}/documents/${docId}`)
+  check('a client document can be removed', removed.status === 200)
+
+  const gone = await fetch(base + photo.body.url)
+  check('removing the document deletes the stored file', gone.status === 404, `status ${gone.status}`)
+
+  /* Housekeeping: unattached files are swept, attached ones are not. */
+  const orphan = await sendFile('/api/uploads', {
+    bytes: pngBytes,
+    type: 'image/png',
+    name: 'jamais-utilisee.png',
+  })
+  const attachedPhoto = await sendFile('/api/uploads', {
+    bytes: pngBytes,
+    type: 'image/png',
+    name: 'gardee.png',
+  })
+  await call('PATCH', `/api/vehicles-admin/${targetId}`, { image: attachedPhoto.body.url })
+
+  const untouched = await sweepUploads({ graceHours: 24 })
+  check(
+    'the sweep leaves files inside the grace period alone',
+    untouched.removed === 0,
+    `removed ${untouched.removed}`
+  )
+
+  await sweepUploads({ graceHours: 0 })
+  check(
+    'an unattached file is swept',
+    (await fetch(base + orphan.body.url)).status === 404
+  )
+  check(
+    'a file attached to a vehicle survives the sweep',
+    (await fetch(base + attachedPhoto.body.url)).status === 200
+  )
 
   /* ------------------------------------------------------------- report -- */
   server.close()

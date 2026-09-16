@@ -16,6 +16,17 @@ export const env = {
     .filter(Boolean),
   seedAdminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@2blocation.ma',
   seedAdminPassword: process.env.SEED_ADMIN_PASSWORD || 'Change-me-2026',
+
+  /* Uploaded files live on disk, outside the code tree, on a volume that
+     survives a redeploy. Swapping this for S3 later means replacing
+     services/storage.js and nothing else. */
+  uploadDir: process.env.UPLOAD_DIR || '',
+  maxUploadMb: Number(process.env.MAX_UPLOAD_MB || 8),
+
+  /* Bootstrap the administrator, the settings and the catalogue on first
+     boot. Idempotent, and never touches business data. Set AUTO_SEED=0 if you
+     would rather run `npm run seed:catalogue` by hand. */
+  autoSeed: process.env.AUTO_SEED !== '0' && process.env.AUTO_SEED !== 'false',
 }
 
 export const isProd = env.nodeEnv === 'production'
