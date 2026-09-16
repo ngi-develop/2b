@@ -64,7 +64,9 @@ export default function VehicleFile() {
             Modifier
           </button>
         )}
-        {isAdmin && (
+        {/* Same rule as the list: offered only when it can succeed. With
+            history behind it the vehicle is immobilised, not deleted. */}
+        {isAdmin && v.activity.rentals === 0 && (
           <button
             type="button"
             className="dbtn dbtn--ghost dbtn--sm dbtn--danger"

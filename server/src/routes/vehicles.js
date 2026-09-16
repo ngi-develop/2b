@@ -88,7 +88,7 @@ router.get(
 
     /* Each row carries its current rental, next return, next booking and
        month-to-date turnover — the columns the Flotte table asks for. */
-    const [live, revenueRows] = await Promise.all([
+    const [live, revenueRows, everRented] = await Promise.all([
       Reservation.find({
         vehicle: { $in: ids },
         status: { $in: ['confirmee', 'en_cours'] },
@@ -108,7 +108,14 @@ router.get(
         },
         { $group: { _id: '$vehicle', revenue: { $sum: '$totals.total' } } },
       ]),
+      /* Which vehicles have ever been rented. The list uses it to show the
+         delete action only where it can actually succeed — the server refuses
+         to delete a vehicle with history, and offering a button that can only
+         fail is worse than offering none. */
+      Reservation.distinct('vehicle', { vehicle: { $in: ids } }),
     ])
+
+    const rented = new Set(everRented.map(String))
 
     const byVehicle = new Map()
     for (const r of live) {
@@ -132,6 +139,7 @@ router.get(
           ...v,
           id: String(v._id),
           derivedStatus: deriveVehicleStatus(v, rows, now),
+          deletable: !rented.has(String(v._id)),
           currentRental: current
             ? { id: String(current._id), reference: current.reference, client: clientName(current) }
             : null,

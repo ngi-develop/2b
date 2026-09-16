@@ -430,6 +430,22 @@
   margin-top: 2px;
 }
 
+/* Row actions. Deliberately always visible rather than revealed on hover:
+   a control you cannot see is a control that does not exist, and hover
+   reveals nothing at all on a touch screen. */
+.table td.acts,
+.table th.acts {
+  text-align: right;
+  white-space: nowrap;
+  width: 1%;
+}
+.table td.acts {
+  cursor: default;
+}
+.table td.acts .dbtn + .dbtn {
+  margin-left: 6px;
+}
+
 .table__thumb {
   width: 46px;
   height: 32px;

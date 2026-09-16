@@ -6,7 +6,7 @@ import VehicleForm from '../VehicleForm.jsx'
 import * as api from '../../api/dashboard.js'
 import { img } from '../../data/images.js'
 import {
-  Banner, Empty, Loading, Pill, date, money, num, useAsync, useDebounced,
+  Banner, Empty, Loading, Modal, Pill, date, money, num, useAsync, useDebounced,
 } from '../ui.jsx'
 
 const STATUS_LABELS = {
@@ -21,8 +21,14 @@ const STATUS_LABELS = {
 /** Flotte — every vehicle, its state, and how it is performing. */
 export default function Fleet() {
   const navigate = useNavigate()
-  const { isManager } = useAuth()
+  const { isManager, isAdmin } = useAuth()
   const [creating, setCreating] = useState(false)
+  /* Editing and deleting live on the row, not behind a drill-in: the list is
+     where you are when you decide a car needs changing. */
+  const [editing, setEditing] = useState(null)
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [busy, setBusy] = useState(false)
+  const [actionError, setActionError] = useState('')
   const [fleetType, setFleetType] = useState('tourisme')
   const [status, setStatus] = useState('')
   const [query, setQuery] = useState('')
@@ -32,6 +38,23 @@ export default function Fleet() {
     () => api.listVehicles({ fleetType, status, q }),
     [fleetType, status, q]
   )
+
+  async function remove() {
+    setBusy(true)
+    setActionError('')
+    try {
+      await api.deleteVehicle(confirmDelete.id)
+      setConfirmDelete(null)
+      reload()
+    } catch (err) {
+      /* The server refuses to delete a vehicle with rental history — it would
+         orphan contracts and rewrite past turnover. Surface that verbatim. */
+      setActionError(err.message)
+      setConfirmDelete(null)
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const rows = data || []
   const totalRevenue = rows.reduce((s, v) => s + (v.monthRevenue || 0), 0)
@@ -50,7 +73,7 @@ export default function Fleet() {
       </PageBar>
 
       <div className="dash__content">
-        <Banner>{error}</Banner>
+        <Banner>{error || actionError}</Banner>
 
         <section className="panel">
           <div className="tabs">
@@ -121,6 +144,7 @@ export default function Fleet() {
                     <th>Prochain retour</th>
                     <th>Prochaine résa.</th>
                     <th className="num">CA du mois</th>
+                    {isManager && <th className="acts">Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -159,6 +183,30 @@ export default function Fleet() {
                         {v.nextReservation ? date(v.nextReservation.startDate) : '—'}
                       </td>
                       <td className="num table__strong">{money(v.monthRevenue)}</td>
+                      {isManager && (
+                        <td className="acts" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="dbtn dbtn--ghost dbtn--sm"
+                            onClick={() => setEditing(v)}
+                          >
+                            Modifier
+                          </button>
+                          {/* Only where it can succeed. A vehicle that has
+                              been rented is immobilised from its file, never
+                              deleted — the server enforces that, and a button
+                              that can only refuse is worse than none. */}
+                          {isAdmin && v.deletable && (
+                            <button
+                              type="button"
+                              className="dbtn dbtn--ghost dbtn--sm dbtn--danger"
+                              onClick={() => setConfirmDelete(v)}
+                            >
+                              Supprimer
+                            </button>
+                          )}
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -177,6 +225,45 @@ export default function Fleet() {
             navigate(`/dashboard/flotte/${v.id || v._id}`)
           }}
         />
+      )}
+
+      {/* Editing from the list stays on the list — the row updates in place
+          rather than throwing you into the vehicle file. */}
+      {editing && (
+        <VehicleForm
+          vehicle={editing}
+          onClose={() => setEditing(null)}
+          onSaved={() => {
+            setEditing(null)
+            reload()
+          }}
+        />
+      )}
+
+      {confirmDelete && (
+        <Modal
+          title={`Supprimer ${confirmDelete.brand} ${confirmDelete.model} ?`}
+          onClose={() => setConfirmDelete(null)}
+          footer={
+            <>
+              <button type="button" className="dbtn dbtn--ghost" onClick={() => setConfirmDelete(null)}>
+                Annuler
+              </button>
+              <button type="button" className="dbtn dbtn--danger" onClick={remove} disabled={busy}>
+                {busy ? 'Suppression…' : 'Supprimer définitivement'}
+              </button>
+            </>
+          }
+        >
+          <p style={{ fontSize: '0.875rem', marginBottom: 12 }}>
+            {confirmDelete.brand} {confirmDelete.model} — {confirmDelete.plate}
+          </p>
+          <div className="banner banner--warn">
+            Ce véhicule n’a jamais été loué : sa suppression est définitive et n’affecte
+            aucun contrat. Pour retirer un véhicule qui a un historique, passez-le en
+            « Immobilisé » depuis sa fiche.
+          </div>
+        </Modal>
       )}
     </>
   )
