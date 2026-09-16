@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PageBar } from '../DashboardLayout.jsx'
+import { useAuth } from '../AuthContext.jsx'
+import VehicleForm from '../VehicleForm.jsx'
 import * as api from '../../api/dashboard.js'
 import { img } from '../../data/images.js'
 import {
@@ -19,12 +21,14 @@ const STATUS_LABELS = {
 /** Flotte — every vehicle, its state, and how it is performing. */
 export default function Fleet() {
   const navigate = useNavigate()
+  const { isManager } = useAuth()
+  const [creating, setCreating] = useState(false)
   const [fleetType, setFleetType] = useState('tourisme')
   const [status, setStatus] = useState('')
   const [query, setQuery] = useState('')
   const q = useDebounced(query, 300)
 
-  const { data, loading, error } = useAsync(
+  const { data, loading, error, reload } = useAsync(
     () => api.listVehicles({ fleetType, status, q }),
     [fleetType, status, q]
   )
@@ -37,7 +41,13 @@ export default function Fleet() {
       <PageBar
         title="Flotte"
         crumb={loading ? '' : `${rows.length} véhicule${rows.length > 1 ? 's' : ''} · ${money(totalRevenue)} ce mois`}
-      />
+      >
+        {isManager && (
+          <button type="button" className="dbtn dbtn--accent dbtn--sm" onClick={() => setCreating(true)}>
+            + Ajouter un véhicule
+          </button>
+        )}
+      </PageBar>
 
       <div className="dash__content">
         <Banner>{error}</Banner>
@@ -79,7 +89,24 @@ export default function Fleet() {
           </div>
 
           {loading && <Loading />}
-          {!loading && rows.length === 0 && <Empty>Aucun véhicule ne correspond.</Empty>}
+          {!loading && rows.length === 0 && (
+            <Empty>
+              Aucun véhicule ne correspond.
+              {isManager && (
+                <>
+                  {' '}
+                  <button
+                    type="button"
+                    className="dbtn dbtn--ghost dbtn--sm"
+                    style={{ marginTop: 12 }}
+                    onClick={() => setCreating(true)}
+                  >
+                    + Ajouter un véhicule
+                  </button>
+                </>
+              )}
+            </Empty>
+          )}
 
           {!loading && rows.length > 0 && (
             <div className="tablewrap">
@@ -140,6 +167,17 @@ export default function Fleet() {
           )}
         </section>
       </div>
+
+      {creating && (
+        <VehicleForm
+          onClose={() => setCreating(false)}
+          onSaved={(v) => {
+            setCreating(false)
+            reload()
+            navigate(`/dashboard/flotte/${v.id || v._id}`)
+          }}
+        />
+      )}
     </>
   )
 }

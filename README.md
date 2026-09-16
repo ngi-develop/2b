@@ -164,7 +164,7 @@ brief in its order.
 | Tableau de bord | How is the business doing? |
 | Planning | Which vehicles are free, and when? |
 | Réservations | Which rentals do I have to handle? |
-| Flotte | How is each vehicle performing? |
+| Flotte | How is each vehicle performing? Add, edit and retire vehicles. |
 | Clients | Who are my customers? |
 | Finances | What do I earn and what do I spend? |
 | Échéances & maintenance | What must I do next? |
@@ -237,6 +237,21 @@ for headings, Switzer for body.
 `NODE_ENV=production` refuses to boot without `JWT_SECRET` and `MONGODB_URI`,
 and `npm run seed` refuses to wipe a production database (use `-- --keep`,
 which only ensures the admin and settings exist).
+
+### Managing the fleet
+
+**Flotte → + Ajouter un véhicule** creates one; the vehicle's own file has
+**Modifier** and **Supprimer**. Adding, editing and retiring vehicles needs
+the *responsable* role; deleting needs *administrateur*, and the server
+refuses to delete a vehicle that has rental history — immobilise it instead,
+so past contracts and turnover stay intact.
+
+A vehicle marked *Tourisme* and *publié* appears in the public catalogue
+immediately. A *Car Wash* vehicle never does, whatever its publication flag
+says.
+
+Photos are Unsplash identifiers for now (`photo-1629005559534-…`), pasted into
+the form. Uploading real files needs the storage layer below.
 
 Not yet built: file upload for documents and photos (the fields and URLs
 exist, the storage does not), e-mail/WhatsApp notifications, and PDF contract

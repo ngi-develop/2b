@@ -1,9 +1,12 @@
-import { Link, useParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PageBar } from '../DashboardLayout.jsx'
+import { useAuth } from '../AuthContext.jsx'
+import VehicleForm from '../VehicleForm.jsx'
 import * as api from '../../api/dashboard.js'
 import { img } from '../../data/images.js'
 import {
-  Banner, Empty, Panel, Pill, Tile,
+  Banner, Empty, Modal, Panel, Pill, Tile,
   date, money, num, useAsync,
 } from '../ui.jsx'
 
@@ -15,7 +18,30 @@ const STATUS_LABELS = {
 /** Fiche véhicule: informations, activité, historique, financement, coûts, rentabilité. */
 export default function VehicleFile() {
   const { id } = useParams()
-  const { data: v, loading, error } = useAsync(() => api.getVehicle(id), [id])
+  const navigate = useNavigate()
+  const { isManager, isAdmin } = useAuth()
+  const { data: v, loading, error, reload } = useAsync(() => api.getVehicle(id), [id])
+
+  const [editing, setEditing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [actionError, setActionError] = useState('')
+
+  async function remove() {
+    setBusy(true)
+    setActionError('')
+    try {
+      await api.deleteVehicle(id)
+      navigate('/dashboard/flotte')
+    } catch (err) {
+      /* The server refuses to delete a vehicle with rental history — it would
+         orphan contracts and rewrite past turnover. Surface that verbatim. */
+      setActionError(err.message)
+      setConfirmDelete(false)
+    } finally {
+      setBusy(false)
+    }
+  }
 
   if (loading) {
     return <><PageBar title="Véhicule" /><div className="dash__content"><p className="loading">Chargement…</p></div></>
@@ -33,9 +59,24 @@ export default function VehicleFile() {
         crumb={<Link to="/dashboard/flotte">Flotte</Link>}
       >
         <Pill status={v.status} label={STATUS_LABELS[v.status]} />
+        {isManager && (
+          <button type="button" className="dbtn dbtn--sm" onClick={() => setEditing(true)}>
+            Modifier
+          </button>
+        )}
+        {isAdmin && (
+          <button
+            type="button"
+            className="dbtn dbtn--ghost dbtn--sm dbtn--danger"
+            onClick={() => setConfirmDelete(true)}
+          >
+            Supprimer
+          </button>
+        )}
       </PageBar>
 
       <div className="dash__content">
+        <Banner>{actionError}</Banner>
         {v.fleetType === 'carwash' && (
           <Banner tone="warn">
             Véhicule Car Wash — hors catalogue public, sans tarif affiché et sans réservation en ligne.
@@ -218,6 +259,43 @@ export default function VehicleFile() {
           </div>
         </div>
       </div>
+
+      {editing && (
+        <VehicleForm
+          vehicle={v}
+          onClose={() => setEditing(false)}
+          onSaved={() => {
+            setEditing(false)
+            reload()
+          }}
+        />
+      )}
+
+      {confirmDelete && (
+        <Modal
+          title={`Supprimer ${v.brand} ${v.model} ?`}
+          onClose={() => setConfirmDelete(false)}
+          footer={
+            <>
+              <button type="button" className="dbtn dbtn--ghost" onClick={() => setConfirmDelete(false)}>
+                Annuler
+              </button>
+              <button type="button" className="dbtn dbtn--danger" onClick={remove} disabled={busy}>
+                {busy ? 'Suppression…' : 'Supprimer définitivement'}
+              </button>
+            </>
+          }
+        >
+          <p style={{ fontSize: '0.875rem', marginBottom: 12 }}>
+            {v.brand} {v.model} — {v.plate}
+          </p>
+          <div className="banner banner--warn">
+            Un véhicule ayant un historique de locations ne peut pas être supprimé : passez-le
+            en « Immobilisé » à la place. La suppression n’est possible que pour un véhicule
+            jamais loué.
+          </div>
+        </Modal>
+      )}
     </>
   )
 }

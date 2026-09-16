@@ -113,11 +113,20 @@ export function Banner({ tone = 'error', children }) {
 }
 
 /** A form field wired to a flat state object. */
-export function Field({ label, name, value, onChange, error, type = 'text', full, options, ...rest }) {
+export function Field({
+  label, name, value, onChange, error, type = 'text', full, options, required, ...rest
+}) {
   const id = `f-${name}`
   return (
     <div className={`dfield${full ? ' dfield--full' : ''}${error ? ' has-error' : ''}`}>
-      <label htmlFor={id}>{label}</label>
+      <label htmlFor={id}>
+        {label}
+        {required && (
+          <span aria-hidden="true" style={{ color: 'var(--accent-on)' }}>
+            {' *'}
+          </span>
+        )}
+      </label>
       {options ? (
         <select id={id} value={value ?? ''} onChange={(e) => onChange(name, e.target.value)} {...rest}>
           {options.map((o) => {
